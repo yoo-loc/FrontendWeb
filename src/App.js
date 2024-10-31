@@ -1,25 +1,18 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect } from "react";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    useEffect(() => {
+        fetch("http://localhost:8080/api/test") // Adjust to your backend's URL
+            .then(response => response.text())
+            .then(data => console.log(data))
+            .catch(error => console.error("Error:", error));
+    }, []);
+
+    return (
+        <div className="App">
+            <h1>Check Backend Connection</h1>
+        </div>
+    );
 }
 
 export default App;
