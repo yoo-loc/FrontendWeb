@@ -1,17 +1,21 @@
-import React, { useEffect } from "react";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Home from "./components/Home";
+import Login from "./components/Login";
+import Profile from "./components/Profile";
+import Post from "./components/Post";
 
 function App() {
-    useEffect(() => {
-        fetch("http://localhost:8080/api/test") // Adjust to your backend's URL
-            .then(response => response.text())
-            .then(data => console.log(data))
-            .catch(error => console.error("Error:", error));
-    }, []);
-
     return (
-        <div className="App">
-            <h1>Check Backend Connection</h1>
-        </div>
+        <Router>
+            <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/" element={<Home />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/post" element={<Post />} />
+            </Routes>
+        </Router>
     );
 }
 
