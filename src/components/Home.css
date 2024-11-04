@@ -1,0 +1,44 @@
+/* src/components/Home.css */
+
+.home-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+    background-color: #f8f9fa; /* Light background color */
+    color: #333; /* Darker text color for contrast */
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+.home-container h1 {
+    font-size: 2.5em;
+    color: #2c3e50; /* Darker color for the heading */
+    margin-bottom: 10px;
+}
+
+.home-container p {
+    font-size: 1.2em;
+    max-width: 600px;
+    color: #555; /* Softer text color for paragraph */
+    line-height: 1.6;
+}
+
+.home-container .cta-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 1.1em;
+    color: white;
+    background-color: #007bff; /* Primary blue color */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.home-container .cta-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
