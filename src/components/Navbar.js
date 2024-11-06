@@ -1,29 +1,33 @@
 // src/components/Navbar.js
-import React from 'react';
+
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import './Navbar.css';
+import './Navbar.css'; // Import the CSS file
 
 const Navbar = () => {
-    const isAuthenticated = false; // Replace with actual authentication logic
+    const [isDropdownOpen, setDropdownOpen] = useState(false);
+
+    // Toggle dropdown visibility
+    const toggleDropdown = () => setDropdownOpen(!isDropdownOpen);
 
     return (
-        <nav>
-            <div className="logo">Recipe Sharing App</div>
-            <ul>
-                <li><Link to="/">Home</Link></li>
-                <li><Link to="/recipes">Recipes</Link></li>
-                {isAuthenticated ? (
-                    <>
-                        <li><Link to="/profile">Profile</Link></li>
-                        <li><Link to="/logout">Logout</Link></li>
-                    </>
-                ) : (
-                    <>
-                        <li><Link to="/login">Login</Link></li>
-                        
-                    </>
+        <nav className="navbar">
+            <Link to="/" className="navbar-link navbar-home">Home</Link>
+
+            <div className="navbar-menu">
+                <button onClick={toggleDropdown} className="navbar-button">
+                    Menu
+                </button>
+
+                {isDropdownOpen && (
+                    <div className="dropdown">
+                        <Link to="/dashboard" className="dropdown-link">Dashboard</Link>
+                        <Link to="/favorites" className="dropdown-link">Favorites</Link>
+                        <Link to="/recipes" className="dropdown-link">Recipes</Link>
+                        <Link to="/add-recipe" className="dropdown-link">Add Recipe</Link>
+                    </div>
                 )}
-            </ul>
+            </div>
         </nav>
     );
 };
