@@ -1,21 +1,23 @@
+// src/components/Profile.js
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 const Profile = () => {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        // Fetch user info from the backend
-        fetch("https://project3-30a71.web.app/user", { credentials: "include" })
-            .then(response => response.json())
-            .then(data => setUser(data))
-            .catch(error => console.error("Error fetching user data:", error));
+        axios.get("http://localhost:8080/api/user", { withCredentials: true })
+            .then(response => setUser(response.data))
+            .catch(error => console.error("Error fetching user data", error));
     }, []);
 
-    if (!user) return <p>Loading user data...</p>;
+    if (!user) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <div>
-            <h2>Welcome, {user.name}!</h2>
+            <h2>Welcome, {user.name}</h2>
             <p>Email: {user.email}</p>
             <img src={user.picture} alt="Profile" />
         </div>
