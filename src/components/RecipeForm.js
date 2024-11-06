@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createRecipe } from '../services/recipeService';
+import { createRecipe } from '../services/dataService';
 
 const RecipeForm = () => {
     const [title, setTitle] = useState('');

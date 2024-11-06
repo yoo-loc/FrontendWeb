@@ -1,7 +1,7 @@
 // src/components/Dashboard.js
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { isLoggedIn, getUserData } from '../services/authService';
+import { isLoggedIn, getUserData } from '../services/dataService';
 
 const Dashboard = () => {
     const navigate = useNavigate();

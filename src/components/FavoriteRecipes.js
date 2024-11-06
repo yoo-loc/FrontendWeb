@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { getFavoritesByUserId, addFavorite, removeFavorite } from '../services/favoritesService';
-import { getRecipeById } from '../services/recipeService';
+import { getFavoritesByUserId, addFavorite, removeFavorite,getRecipeById  } from '../services/dataService';
+
 
 const FavoriteRecipes = ({ userId, recipeId }) => {
     const [favorites, setFavorites] = useState([]);

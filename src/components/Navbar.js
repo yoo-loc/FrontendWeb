@@ -1,38 +1,33 @@
 // src/components/Navbar.js
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { isLoggedIn, logout } from '../services/authService';
-import './Navbar.css';
+
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import './Navbar.css'; // Import the CSS file
 
 const Navbar = () => {
-    const navigate = useNavigate();
-    const isAuthenticated = isLoggedIn(); // Check authentication status
+    const [isDropdownOpen, setDropdownOpen] = useState(false);
 
-    // Handle logout
-    const handleLogout = () => {
-        logout(); // Clears the session
-        navigate('/login'); // Redirect to login page after logout
-    };
+    // Toggle dropdown visibility
+    const toggleDropdown = () => setDropdownOpen(!isDropdownOpen);
 
     return (
         <nav className="navbar">
-            <div className="logo">Recipe Sharing App</div>
-            <ul className="nav-links">
-                <li><Link to="/">Home</Link></li>
-                <li><Link to="/recipes">Recipes</Link></li>
-                
-                {isAuthenticated ? (
-                    <>
-                        <li><Link to="/favorites">Favorites</Link></li> {/* New Favorites link */}
-                        <li><Link to="/profile">Profile</Link></li>
-                        <li>
-                            <button onClick={handleLogout} className="logout-button">Logout</button>
-                        </li>
-                    </>
-                ) : (
-                    <li><Link to="/login">Login</Link></li>
+            <Link to="/" className="navbar-link navbar-home">Home</Link>
+
+            <div className="navbar-menu">
+                <button onClick={toggleDropdown} className="navbar-button">
+                    Menu
+                </button>
+
+                {isDropdownOpen && (
+                    <div className="dropdown">
+                        <Link to="/dashboard" className="dropdown-link">Dashboard</Link>
+                        <Link to="/favorites" className="dropdown-link">Favorites</Link>
+                        <Link to="/recipes" className="dropdown-link">Recipes</Link>
+                        <Link to="/add-recipe" className="dropdown-link">Add Recipe</Link>
+                    </div>
                 )}
-            </ul>
+            </div>
         </nav>
     );
 };
