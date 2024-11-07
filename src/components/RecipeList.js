@@ -1,75 +1,39 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { categories, getAllRecipes, getRecipesByCategory } from '../services/dataService';
+import axios from 'axios';
 
 const RecipeList = () => {
     const [recipes, setRecipes] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState("");
 
-    // Fetch all or filtered recipes based on the selected category
     useEffect(() => {
-        if (selectedCategory) {
-            getRecipesByCategory(selectedCategory).then(setRecipes);
-        } else {
-            getAllRecipes().then(setRecipes);
-        }
-    }, [selectedCategory]);
+        // Fetch recipes from the backend
+        const fetchRecipes = async () => {
+            try {
+                const response = await axios.get('http://localhost:8080/recipes/all');
+                setRecipes(response.data);
+            } catch (error) {
+                console.error('Error fetching recipes:', error);
+            }
+        };
 
-    // Handle category selection
-    const handleCategoryClick = (category) => {
-        setSelectedCategory(category);
-    };
+        fetchRecipes();
+    }, []);
 
     return (
         <div>
-            <h2>Recipes</h2>
-
-            {/* Category filter buttons */}
-            <div style={{ marginBottom: '20px' }}>
-                {categories.map((category) => (
-                    <button
-                        key={category}
-                        onClick={() => handleCategoryClick(category)}
-                        style={{
-                            marginRight: '10px',
-                            padding: '5px 10px',
-                            backgroundColor: selectedCategory === category ? 'lightblue' : 'white',
-                            border: '1px solid #ccc',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        {category}
-                    </button>
-                ))}
-                <button
-                    onClick={() => setSelectedCategory("")}
-                    style={{
-                        padding: '5px 10px',
-                        backgroundColor: selectedCategory === "" ? 'lightblue' : 'white',
-                        border: '1px solid #ccc',
-                        cursor: 'pointer'
-                    }}
-                >
-                    Show All
-                </button>
-            </div>
-
-            {/* Recipe list */}
+            <h1>Recipes</h1>
             {recipes.length > 0 ? (
                 <ul>
                     {recipes.map((recipe) => (
-                        <li key={recipe.recipe_id} style={{ marginBottom: '15px', listStyle: 'none' }}>
-                            <Link to={`/recipe/${recipe.recipe_id}`} style={{ textDecoration: 'none', color: 'black' }}>
-                                <h3>{recipe.name}</h3>
-                            </Link>
-                            <p><strong>Category:</strong> {recipe.category}</p>
-                            <p>{recipe.description}</p>
-                            <p><strong>Favorites:</strong> {recipe.favorites_count}</p>
+                        <li key={recipe.id}>
+                            <h2>{recipe.title}</h2>
+                            <p><strong>Ingredients:</strong> {recipe.ingredients}</p>
+                            <p><strong>Instructions:</strong> {recipe.instructions}</p>
+                            <p><strong>Dietary Tags:</strong> {recipe.dietaryTags}</p>
                         </li>
                     ))}
                 </ul>
             ) : (
-                <p>No recipes available for this category.</p>
+                <p>No recipes found.</p>
             )}
         </div>
     );

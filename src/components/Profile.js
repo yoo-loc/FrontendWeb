@@ -1,39 +1,57 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import './Profile.css'; // Add CSS for styling the sidebar
 
 const Profile = () => {
     const [user, setUser] = useState(null);
-    const [error, setError] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [loading, setLoading] = useState(true); // Add loading state
+    const navigate = useNavigate();
 
     useEffect(() => {
-        axios.get("http://localhost:8080/api/user", { withCredentials: true })
+        axios.get('http://localhost:8080/api/user', { withCredentials: true })
             .then(response => {
                 setUser(response.data);
-                setError(null); // Clear error if successful
+                setLoading(false); // Stop loading once data is fetched
             })
             .catch(error => {
-                console.error("Error fetching user data", error);
-                setError("Failed to load user data. Please try again.");
-            })
-            .finally(() => {
-                setIsLoading(false); // Stop loading spinner
+                console.error('Error fetching user data', error);
+                navigate('/login'); // Navigate to login on error
             });
-    }, []);
+    }, [navigate]);
 
-    if (isLoading) {
-        return <div>Welcome People</div>;
+    const handleLogout = async () => {
+        try {
+            const response = await axios.post('http://localhost:8080/api/auth/logout', {}, {
+                withCredentials: true
+            });
+            console.log(response.data.message);
+            navigate('/'); // Use navigate instead of window.location.href for SPA behavior
+        } catch (error) {
+            console.error('Logout failed:', error);
+        }
+    };
+
+    if (loading) {
+        return <div>Loading...</div>; // Show while data is loading
     }
 
-    if (error) {
-        return <div>{error}</div>; // Show error message in UI
+    if (!user) {
+        return <div>Error: Unable to load user data.</div>; // Fallback if user data isn't available
     }
 
     return (
-        <div>
-            <h2>Welcome, {user.name}</h2>
-            <p>Email: {user.email}</p>
-            <img src={user.picture} alt="Profile" />
+        <div className="profile-container">
+            <div className="profile-sidebar">
+                <button onClick={handleLogout} className="logout-button">
+                    Logout
+                </button>
+            </div>
+            <div className="profile-content">
+                <h2>Welcome and Find your Recipes, {user.name}</h2>
+                <p>Email: {user.email}</p>
+                <img src={user.picture} alt="Profile" />
+            </div>
         </div>
     );
 };
