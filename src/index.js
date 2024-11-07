@@ -1,11 +1,10 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client'; // Update import for createRoot
+import ReactDOM from 'react-dom';
 import App from './App';
 
-// Use createRoot for React 18+
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
+ReactDOM.render(
     <React.StrictMode>
         <App />
-    </React.StrictMode>
+    </React.StrictMode>,
+    document.getElementById('root')
 );

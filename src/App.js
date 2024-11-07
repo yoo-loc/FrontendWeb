@@ -1,34 +1,49 @@
-// src/App.js
-
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './components/Home';
 import Dashboard from './components/Dashboard';
 import Login from './components/Login';
-import FavoriteRecipes from './components/FavoriteRecipes';
-import RecipeList from './components/RecipeList';
-import RecipeDetail from './components/RecipeDetail';
-import AddRecipe from './components/AddRecipe';
+import Profile from './components/Profile';
+import axios from 'axios';
 
-function App() {
-    const userId = 1; // Replace with actual logged-in user's ID
+const App = () => {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [loading, setLoading] = useState(true);
+
+    const checkIfAuthenticated = async () => {
+        try {
+            const response = await axios.get('http://localhost:8080/api/auth/status', { withCredentials: true });
+            setIsAuthenticated(response.data.isAuthenticated);
+        } catch (error) {
+            console.error('Error checking authentication status', error);
+            setIsAuthenticated(false);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        checkIfAuthenticated();
+    }, []);
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
 
     return (
-        <Router> {/* Ensure Router wraps all components */}
+        <Router>
             <Navbar />
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/home" element={<Home />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/favorites" element={<FavoriteRecipes userId={userId} />} />
-                <Route path="/recipes" element={<RecipeList />} />
-                <Route path="/recipe/:recipeId" element={<RecipeDetail />} />
-                <Route path="/add-recipe" element={<AddRecipe />} />
+                <Route path="/home" element={isAuthenticated ? <Profile /> : <Navigate to="/login" replace />} />
+                <Route path="/dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" replace />} />
+                <Route path="/profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" replace />} />
+                <Route path="/login" element={isAuthenticated ? <Navigate to="/profile" replace /> : <Login />} />
             </Routes>
         </Router>
     );
-}
+};
 
 export default App;
+
