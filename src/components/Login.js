@@ -1,16 +1,29 @@
 // src/components/Login.js
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { login } from '../services/dataService';
 import './Login.css';
 
 
 const Login = () => {
-    const googleLogin = () => {
-        window.location.href = "http://localhost:8080/oauth2/authorization/google";
+    const handleGoogleLogin = () => {
+        window.location.href = "https://project3-30a71.web.app/oauth2/authorization/google";
     };
 
     return (
-        <div>
-            <button onClick={googleLogin}>Login with Google</button>
+        <div className="login-page">
+            <h2>Log in to Your Account</h2>
+            <div className="login-buttons">
+                <button onClick={handleGoogleLogin}>Continue with Google</button>
+        
+            </div>
+            <div className="separator">or</div>
+            <form className="form">
+                <input type="text" placeholder="Username or email" />
+                <input type="password" placeholder="Password" />
+                <button type="submit">Log in</button>
+            </form>
+            <p className="signup-text">Don't have an account? <a href="/signup">Sign up.</a></p>
         </div>
     );
 };
