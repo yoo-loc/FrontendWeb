@@ -1,44 +1,70 @@
-/* src/components/Home.css */
-
-.home-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 80vh;
-    background-color: #f8f9fa; /* Light background color */
-    color: #333; /* Darker text color for contrast */
-    padding: 20px;
-    font-family: Arial, sans-serif;
+.home {
     text-align: center;
-}
-
-.home-container h1 {
-    font-size: 2.5em;
-    color: #2c3e50; /* Darker color for the heading */
-    margin-bottom: 10px;
-}
-
-.home-container p {
-    font-size: 1.2em;
-    max-width: 600px;
-    color: #555; /* Softer text color for paragraph */
-    line-height: 1.6;
-}
-
-.home-container .cta-button {
-    margin-top: 20px;
-    padding: 10px 20px;
-    font-size: 1.1em;
+    font-family: 'Arial', sans-serif;
+    padding: 20px;
+    background-color: #f8f9fa;
+  }
+  
+  .home-hero {
+    background: linear-gradient(to right, #ff7e5f, #feb47b);
     color: white;
-    background-color: #007bff; /* Primary blue color */
+    padding: 50px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .home-title {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+  }
+  
+  .home-description {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+  }
+  
+  .explore-button {
+    padding: 10px 20px;
+    font-size: 1.1rem;
+    background-color: #007bff;
+    color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    text-decoration: none;
-    transition: background-color 0.3s;
-}
-
-.home-container .cta-button:hover {
-    background-color: #0056b3; /* Darker blue on hover */
-}
+    transition: background 0.3s ease;
+  }
+  
+  .explore-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .home-highlight-section {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 40px;
+  }
+  
+  .highlight {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 300px;
+    text-align: center;
+  }
+  
+  .highlight-image {
+    width: 100%;
+    border-radius: 8px;
+  }
+  
+  .highlight h3 {
+    margin-top: 15px;
+    font-size: 1.5rem;
+  }
+  
+  .highlight p {
+    font-size: 1rem;
+    color: #555;
+  }
+  
