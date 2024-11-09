@@ -20,7 +20,7 @@ function Home() {
         <div className="highlight" onClick={() => navigate('/discover')}>
           <div className="highlight-icon">🍴</div>
           <h3>Discover Unique Recipes</h3>
-          <p>Find recipes from around the world that fit your taste and dietary needs.</p>
+          <p>Find recipes from around the world.</p>
         </div>
         <div className="highlight" onClick={() => navigate('/share')}>
           <div className="highlight-icon">📖</div>
@@ -30,7 +30,7 @@ function Home() {
         <div className="highlight" onClick={() => navigate('/cook-together')}>
           <div className="highlight-icon">👨‍🍳</div>
           <h3>Cook Together</h3>
-          <p>Join others in virtual cooking sessions and share the joy of cooking.</p>
+          <p>Join others in learning how to cook new dishes.</p>
         </div>
       </div>
     </div>

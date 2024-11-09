@@ -11,6 +11,9 @@ import DiscoverRecipes from './components/DiscoverRecipes'; // Add this componen
 import ShareRecipes from './components/ShareRecipes'; // Add this component
 import CookTogether from './components/CookTogether';
 import axios from 'axios';
+import UserFeed from './components/UserFeed';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 const App = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -50,6 +53,8 @@ const App = () => {
                 {/* Protected Routes */}
                 <Route path="/dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" replace />} />
                 <Route path="/profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" replace />} />
+
+                <Route path="/userFeed" element={isAuthenticated ? <UserFeed /> : <Navigate to="/userFeed" replace />} />
 
                 {/* Login Route */}
                 <Route path="/login" element={isAuthenticated ? <Navigate to="/profile" replace /> : <Login />} />
