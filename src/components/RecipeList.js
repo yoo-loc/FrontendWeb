@@ -5,7 +5,6 @@ const RecipeList = () => {
     const [recipes, setRecipes] = useState([]);
 
     useEffect(() => {
-        // Fetch recipes from the backend
         const fetchRecipes = async () => {
             try {
                 const response = await axios.get('http://localhost:8080/recipes/all');
@@ -26,9 +25,11 @@ const RecipeList = () => {
                     {recipes.map((recipe) => (
                         <li key={recipe.id}>
                             <h2>{recipe.title}</h2>
+                            <img src={recipe.imageUrl} alt={recipe.title} style={{ width: '300px', height: '200px' }} />
                             <p><strong>Ingredients:</strong> {recipe.ingredients}</p>
                             <p><strong>Instructions:</strong> {recipe.instructions}</p>
                             <p><strong>Dietary Tags:</strong> {recipe.dietaryTags}</p>
+                            <a href={recipe.url} target="_blank" rel="noopener noreferrer">View Full Recipe</a>
                         </li>
                     ))}
                 </ul>

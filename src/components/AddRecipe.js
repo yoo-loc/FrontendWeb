@@ -1,4 +1,5 @@
 // src/components/AddRecipe.js
+import './RecipeForm.css';
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
