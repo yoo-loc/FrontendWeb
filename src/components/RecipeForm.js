@@ -2,31 +2,26 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 const RecipeForm = () => {
-    const [recipe, setRecipe] = useState({
+    const [formData, setFormData] = useState({
         title: '',
         ingredients: '',
         instructions: '',
         dietaryTags: '',
+        url: '',        // New field for URL
+        imageUrl: ''    // New field for image URL
     });
 
     const handleChange = (e) => {
-        setRecipe({
-            ...recipe,
-            [e.target.name]: e.target.value,
-        });
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8080/recipes/post', recipe, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            console.log('Recipe saved:', response.data);
+            const response = await axios.post('http://localhost:8080/recipes/post', formData);
+            console.log('Recipe submitted:', response.data);
         } catch (error) {
-            console.error('Error posting recipe:', error);
+            console.error('Error submitting recipe:', error);
         }
     };
 
@@ -35,22 +30,22 @@ const RecipeForm = () => {
             <input
                 type="text"
                 name="title"
-                placeholder="Recipe Title"
-                value={recipe.title}
+                placeholder="Title"
+                value={formData.title}
                 onChange={handleChange}
                 required
             />
             <textarea
                 name="ingredients"
                 placeholder="Ingredients"
-                value={recipe.ingredients}
+                value={formData.ingredients}
                 onChange={handleChange}
                 required
             />
             <textarea
                 name="instructions"
                 placeholder="Instructions"
-                value={recipe.instructions}
+                value={formData.instructions}
                 onChange={handleChange}
                 required
             />
@@ -58,7 +53,21 @@ const RecipeForm = () => {
                 type="text"
                 name="dietaryTags"
                 placeholder="Dietary Tags"
-                value={recipe.dietaryTags}
+                value={formData.dietaryTags}
+                onChange={handleChange}
+            />
+            <input
+                type="url"
+                name="url"
+                placeholder="Recipe URL"
+                value={formData.url}
+                onChange={handleChange}
+            />
+            <input
+                type="url"
+                name="imageUrl"
+                placeholder="Image URL"
+                value={formData.imageUrl}
                 onChange={handleChange}
             />
             <button type="submit">Submit Recipe</button>
