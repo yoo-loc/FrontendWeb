@@ -8,12 +8,11 @@ import Profile from './components/Profile';
 import RecipeList from './components/RecipeList'; // Import RecipeList
 import RecipeForm from './components/RecipeForm'; // Import RecipeForm
 import DiscoverRecipes from './components/DiscoverRecipes'; // Add this component
-import ShareRecipes from './components/ShareRecipes'; // Add this component
+import ShareRecipes from './components/ShareRecipes'; // Correct import, keep only this one
 import CookTogether from './components/CookTogether';
 import axios from 'axios';
-import UserFeed from './components/UserFeed';
+import UserFeed from './components/UserFeed'; // No duplicate imports
 import 'bootstrap/dist/css/bootstrap.min.css';
-
 
 const App = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -55,13 +54,15 @@ const App = () => {
                 <Route path="/profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" replace />} />
 
                 <Route path="/userFeed" element={isAuthenticated ? <UserFeed /> : <Navigate to="/userFeed" replace />} />
+                <Route path="/share" element={isAuthenticated ? <ShareRecipes /> : <Navigate to="/login" replace />} />
 
                 {/* Login Route */}
                 <Route path="/login" element={isAuthenticated ? <Navigate to="/profile" replace /> : <Login />} />
+
                 {/* Protected Routes */}
                 <Route path="/discover" element={isAuthenticated ? <DiscoverRecipes /> : <Navigate to="/login" replace />} />
-                <Route path="/share" element={isAuthenticated ? <ShareRecipes /> : <Navigate to="/login" replace />} />
                 <Route path="/cook-together" element={isAuthenticated ? <CookTogether /> : <Navigate to="/login" replace />} />
+
                 {/* Fallback for undefined routes */}
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

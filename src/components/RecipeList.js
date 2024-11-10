@@ -28,6 +28,20 @@ const RecipeList = () => {
         }
     };
 
+
+    const handleAddToFavorites = async (recipeId) => {
+        try {
+            const userId = 'USER_ID'; // Replace with dynamic user ID logic
+            await axios.post(`http://localhost:8080/recipes/favorites/${userId}`, recipeId, {
+                headers: { 'Content-Type': 'application/json' }
+            });
+            alert('Recipe added to favorites!');
+        } catch (error) {
+            console.error('Error adding to favorites:', error);
+            alert('Failed to add to favorites.');
+        }
+    };
+
     return (
         <div className="recipe-list-container">
             <h1 className="recipe-list-title">Recipes</h1>
@@ -49,6 +63,10 @@ const RecipeList = () => {
                             </a>
                             <button onClick={() => handleDelete(recipe.id)} className="delete-button">
                                 Delete
+                            </button>
+                            <button onClick={() => handleAddToFavorites(recipe.id)} className="favorite-button">
+                            
+                              Add to Favorites
                             </button>
                         </div>
                     ))}

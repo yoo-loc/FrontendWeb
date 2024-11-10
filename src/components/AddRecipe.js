@@ -62,7 +62,7 @@ const AddRecipe = () => {
                         required
                     />
                 </label>
-                {/* <label>
+                { <label>
                     Image (URL or local path):
                     <input
                         type="text"
@@ -70,7 +70,7 @@ const AddRecipe = () => {
                         onChange={(e) => setImage(e.target.value)}
                         placeholder="https://example.com/image.jpg or local path"
                     />
-                </label> */}
+                </label> }
                 <label>
                     Steps (each step on a new line):
                     <textarea
