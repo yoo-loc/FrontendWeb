@@ -6,6 +6,8 @@ const ShareRecipes = () => {
     const [ingredients, setIngredients] = useState('');
     const [instructions, setInstructions] = useState('');
     const [imageUrl, setImageUrl] = useState('');
+    const [category, setCategory] = useState(""); // Changed to text input for custom category
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -46,6 +48,16 @@ const ShareRecipes = () => {
                 onChange={(e) => setInstructions(e.target.value)} 
                 required 
             />
+              <label>
+                  
+                  <input
+                      type="text"
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value)}
+                      placeholder="Dietary Tags"
+                      required
+                  />
+              </label>
             <input 
                 type="text" 
                 placeholder="Image URL" 
