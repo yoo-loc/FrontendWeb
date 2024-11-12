@@ -1,16 +1,23 @@
 // src/components/AddRecipe.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { addRecipe } from '../services/dataService';
+import { addRecipe, isLoggedIn } from '../services/dataService';
 
 const AddRecipe = () => {
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
-    const [category, setCategory] = useState(""); // Changed to text input for custom category
+    const [category, setCategory] = useState("");
     const [image, setImage] = useState("");
-    const [steps, setSteps] = useState(""); // Single text input for all steps
+    const [steps, setSteps] = useState("");
     const navigate = useNavigate();
+
+    // Check if user is logged in; if not, redirect to login
+    useEffect(() => {
+        if (!isLoggedIn()) {
+            navigate("/login"); // Redirect to login if user is not logged in
+        }
+    }, [navigate]);
 
     // Handle form submission
     const handleSubmit = (e) => {
@@ -21,7 +28,7 @@ const AddRecipe = () => {
             description,
             category,
             image,
-            steps: steps.split("\n").filter(step => step.trim() !== "") // Split steps by new line and remove any empty lines
+            steps: steps.split("\n").filter(step => step.trim() !== "") // Split steps by new line and remove empty lines
         };
 
         addRecipe(newRecipe).then(() => {

@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { categories, getAllRecipes, getRecipesByCategory } from '../services/dataService';
+import { Link, useNavigate } from 'react-router-dom';
+import { categories, getAllRecipes, getRecipesByCategory, isLoggedIn } from '../services/dataService';
 
 const RecipeList = () => {
     const [recipes, setRecipes] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState("");
+    const navigate = useNavigate();
+
+    // Redirect to login if not logged in
+    useEffect(() => {
+        if (!isLoggedIn()) {
+            navigate("/login");
+        }
+    }, [navigate]);
 
     // Fetch all or filtered recipes based on the selected category
     useEffect(() => {
@@ -56,11 +64,19 @@ const RecipeList = () => {
 
             {/* Recipe list */}
             {recipes.length > 0 ? (
-                <ul>
+                <ul style={{ padding: 0, listStyle: 'none' }}>
                     {recipes.map((recipe) => (
-                        <li key={recipe.recipe_id} style={{ marginBottom: '15px', listStyle: 'none' }}>
+                        <li 
+                            key={recipe.recipe_id} 
+                            style={{ marginBottom: '20px', borderBottom: '1px solid #ccc', paddingBottom: '10px' }}
+                        >
                             <Link to={`/recipe/${recipe.recipe_id}`} style={{ textDecoration: 'none', color: 'black' }}>
                                 <h3>{recipe.name}</h3>
+                                <img 
+                                    src={recipe.image} 
+                                    alt={`${recipe.name}`} 
+                                    style={{ width: '100%', maxWidth: '300px', height: 'auto', marginBottom: '10px' }}
+                                />
                             </Link>
                             <p><strong>Category:</strong> {recipe.category}</p>
                             <p>{recipe.description}</p>

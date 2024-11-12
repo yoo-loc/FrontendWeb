@@ -1,46 +1,47 @@
 // src/services/dataService.js
 
 // ========================
-// Auth Service
+// Mock Data & Auth Service
 // ========================
 
-const mockUserSession = {
-    isLoggedIn: false,
-    userData: null
-};
-
-// Mock user database
-const mockUsers = [
+const mockUserSession = { isLoggedIn: false, userData: null };
+let mockUsers = [
     { user_id: 1, username: "a", password: "a", email: "a@example.com", name: "Alice" },
     { user_id: 2, username: "b", password: "b", email: "b@example.com", name: "Bob" },
     { user_id: 3, username: "c", password: "c", email: "c@example.com", name: "Charlie" }
 ];
 
-// Function to check if the user is logged in
-export const isLoggedIn = () => mockUserSession.isLoggedIn;
-
-// Function to get the current user's data
-export const getUserData = () => mockUserSession.isLoggedIn ? mockUserSession.userData : null;
-
-// Function to log in with username and password
 export const login = (username, password) => {
     const user = mockUsers.find((u) => u.username === username && u.password === password);
     if (user) {
         mockUserSession.isLoggedIn = true;
-        mockUserSession.userData = { ...user }; // Set user data in the session
+        mockUserSession.userData = { ...user };
         return { success: true, userData: mockUserSession.userData };
-    } else {
-        return { success: false, message: "Invalid username or password" };
     }
+    return { success: false, message: "Invalid username or password" };
 };
 
-// Function to log out the user
 export const logout = () => {
     mockUserSession.isLoggedIn = false;
     mockUserSession.userData = null;
 };
 
-// Function to get a username by user ID
+export const isLoggedIn = () => mockUserSession.isLoggedIn;
+export const getUserData = () =>
+    mockUserSession.isLoggedIn ? mockUserSession.userData : null;
+
+export const signUp = (username, password, email, name) => {
+    return new Promise((resolve, reject) => {
+        if (mockUsers.some((user) => user.username === username || user.email === email)) {
+            reject("Username or email already exists.");
+        } else {
+            const newUser = { user_id: mockUsers.length + 1, username, password, email, name };
+            mockUsers.push(newUser);
+            resolve(newUser);
+        }
+    });
+};
+
 export const getUsernameById = (user_id) => {
     const user = mockUsers.find((user) => user.user_id === user_id);
     return user ? user.username : "Unknown User";
@@ -50,177 +51,157 @@ export const getUsernameById = (user_id) => {
 // Recipe Service
 // ========================
 
-
-let mockRecipes = [
+const mockRecipes = [
     {
         recipe_id: 1,
         name: "Spaghetti Carbonara",
         category: "Main Course",
-        description: "A classic Italian pasta dish with eggs, cheese, pancetta, and pepper.",
+        description: "Classic Italian pasta with eggs, cheese, pancetta, and pepper.",
         favorites_count: 10,
         image: "https://example.com/images/spaghetti-carbonara.jpg",
         steps: [
-            "Boil a pot of salted water and cook the spaghetti according to package instructions.",
-            "In a bowl, beat the eggs and mix in grated cheese.",
-            "In a pan, cook pancetta until crispy, then remove from heat.",
-            "Drain the pasta, then combine with pancetta in the pan.",
-            "Quickly stir in the egg mixture to create a creamy sauce.",
-            "Season with pepper and serve immediately."
+            "Boil water and cook spaghetti.",
+            "Mix eggs and cheese in a bowl.",
+            "Cook pancetta until crispy.",
+            "Combine pasta and pancetta, stir in egg mixture."
         ]
     },
     {
         recipe_id: 2,
-        name: "Chocolate Cake",
-        category: "Dessert",
-        description: "A rich, moist chocolate cake topped with creamy chocolate icing.",
+        name: "Avocado Toast",
+        category: "Breakfast",
+        description: "Simple and delicious avocado on toast with toppings.",
         favorites_count: 25,
-        image: "https://example.com/images/chocolate-cake.jpg",
+        image: "https://example.com/images/avocado-toast.jpg",
         steps: [
-            "Preheat oven to 350°F (175°C) and grease a cake pan.",
-            "In a large bowl, mix flour, cocoa powder, sugar, and baking soda.",
-            "Add eggs, milk, oil, and vanilla extract, and beat until smooth.",
-            "Pour the batter into the prepared pan and bake for 30-35 minutes.",
-            "Let the cake cool, then frost with chocolate icing."
+            "Toast the bread.",
+            "Mash avocado with salt and pepper.",
+            "Spread avocado on toast.",
+            "Top with sliced radishes, tomatoes, or an egg, if desired."
         ]
     },
     {
         recipe_id: 3,
-        name: "Caesar Salad",
-        category: "Appetizer",
-        description: "A fresh salad with romaine lettuce, croutons, and Caesar dressing.",
-        favorites_count: 15,
-        image: "https://example.com/images/caesar-salad.jpg",
+        name: "Chocolate Chip Cookies",
+        category: "Dessert",
+        description: "Soft and chewy chocolate chip cookies.",
+        favorites_count: 50,
+        image: "https://example.com/images/chocolate-chip-cookies.jpg",
         steps: [
-            "Wash and chop the romaine lettuce.",
-            "In a large bowl, toss lettuce with Caesar dressing.",
-            "Add croutons and grated Parmesan cheese.",
-            "Toss the salad again and serve chilled."
+            "Preheat oven to 350°F (175°C).",
+            "Mix butter, sugar, and eggs in a bowl.",
+            "Add flour, baking soda, and chocolate chips.",
+            "Scoop dough onto baking sheet and bake for 10-12 minutes."
         ]
     }
 ];
+export const categories = ["Appetizer", "Main Course", "Dessert", "Breakfast"];
 
-export const categories = ["Appetizer", "Main Course", "Dessert"];
-
-// Function to get all categories
 export const getCategories = () => categories;
 
-// Function to add a new recipe
 export const addRecipe = (newRecipe) => {
-    // If the category doesn't exist, add it
-    if (!categories.includes(newRecipe.category)) {
-        categories.push(newRecipe.category);
-    }
-
-    const recipeWithId = {
-        ...newRecipe,
-        recipe_id: mockRecipes.length + 1,
-        favorites_count: 0, // New recipes start with zero favorites
-    };
+    if (!categories.includes(newRecipe.category)) categories.push(newRecipe.category);
+    const recipeWithId = { ...newRecipe, recipe_id: mockRecipes.length + 1, favorites_count: 0 };
     mockRecipes.push(recipeWithId);
     return Promise.resolve(recipeWithId);
 };
 
-export const getAllRecipes = () => new Promise((resolve) => {
-    setTimeout(() => resolve(mockRecipes), 500);
-});
+export const getAllRecipes = () => Promise.resolve([...mockRecipes]);
+export const getRecipeById = (recipe_id) => Promise.resolve(mockRecipes.find((r) => r.recipe_id === recipe_id) || null);
+export const getRecipesByCategory = (category) => Promise.resolve(mockRecipes.filter((recipe) => recipe.category === category));
 
-export const getRecipeById = (recipe_id) => new Promise((resolve) => {
+export const updateFavoritesCount = (recipe_id, newCount) => {
     const recipe = mockRecipes.find((r) => r.recipe_id === recipe_id);
-    setTimeout(() => resolve(recipe || null), 500);
-});
-
-export const getRecipesByCategory = (category) => new Promise((resolve) => {
-    const filteredRecipes = mockRecipes.filter((recipe) => recipe.category === category);
-    setTimeout(() => resolve(filteredRecipes), 500);
-});
-
-
-
-export const updateFavoritesCount = (recipe_id, newCount) => new Promise((resolve) => {
-    const recipeIndex = mockRecipes.findIndex((r) => r.recipe_id === recipe_id);
-    if (recipeIndex !== -1) {
-        mockRecipes[recipeIndex].favorites_count = newCount;
-        setTimeout(() => resolve(mockRecipes[recipeIndex]), 500);
-    } else {
-        resolve(null);
+    if (recipe) {
+        recipe.favorites_count = newCount;
+        return Promise.resolve(recipe);
     }
-});
+    return Promise.resolve(null);
+};
 
-export const deleteRecipeById = (recipe_id) => new Promise((resolve) => {
-    const recipeIndex = mockRecipes.findIndex((r) => r.recipe_id === recipe_id);
-    if (recipeIndex !== -1) {
-        const deletedRecipe = mockRecipes.splice(recipeIndex, 1)[0];
-        setTimeout(() => resolve(deletedRecipe), 500);
-    } else {
-        resolve(null);
-    }
-});
+export const deleteRecipeById = (recipe_id) => {
+    const index = mockRecipes.findIndex((r) => r.recipe_id === recipe_id);
+    return index !== -1 ? Promise.resolve(mockRecipes.splice(index, 1)[0]) : Promise.resolve(null);
+};
 
 // ========================
 // Comment Service
 // ========================
-
 let mockComments = [
-    { comment_id: 1, recipe_id: 1, user_id: 1, content: "This recipe was amazing! My family loved it." },
-    { comment_id: 2, recipe_id: 1, user_id: 2, content: "I found it a bit salty, but overall great." },
-    { comment_id: 3, recipe_id: 2, user_id: 1, content: "Perfect dessert for a family dinner!" },
-    { comment_id: 4, recipe_id: 3, user_id: 3, content: "A refreshing starter before the main course." },
-    { comment_id: 5, recipe_id: 3, user_id: 4, content: "Loved the Caesar dressing!" }
+    { comment_id: 101, recipe_id: 1, user_id: 1, text: "Loved this recipe! It was so easy and delicious.", date: "2024-01-01" },
+    { comment_id: 102, recipe_id: 1, user_id: 2, text: "I added extra cheese, and it was amazing!", date: "2024-01-02" },
+    { comment_id: 201, recipe_id: 2, user_id: 3, text: "Great for a quick breakfast! I like adding chili flakes for a kick.", date: "2024-02-10" },
+    { comment_id: 202, recipe_id: 2, user_id: 4, text: "Simple and delicious. Perfect for busy mornings.", date: "2024-02-11" },
+    { comment_id: 301, recipe_id: 3, user_id: 5, text: "These cookies are my favorite! Crispy on the outside, chewy inside.", date: "2024-03-15" },
+    { comment_id: 302, recipe_id: 3, user_id: 6, text: "I used dark chocolate chips, and they turned out perfect!", date: "2024-03-16" }
 ];
 
-export const getCommentsByRecipeId = (recipe_id) => new Promise((resolve) => {
-    const comments = mockComments.filter((comment) => comment.recipe_id === recipe_id);
-    setTimeout(() => resolve(comments), 500);
-});
 
-export const addComment = (recipe_id, user_id, content) => new Promise((resolve) => {
-    const newComment = { comment_id: mockComments.length + 1, recipe_id, user_id, content };
-    mockComments.push(newComment);
-    setTimeout(() => resolve(newComment), 500);
-});
+export const getCommentsByRecipeId = (recipe_id) => {
+    const user = getUserData();
+    if (!user) return Promise.resolve([]); // Return empty if not logged in
+    return Promise.resolve(mockComments.filter((c) => c.recipe_id === recipe_id));
+};
 
-export const deleteCommentById = (comment_id) => new Promise((resolve) => {
-    mockComments = mockComments.filter((comment) => comment.comment_id !== comment_id);
-    setTimeout(() => resolve({ success: true }), 500);
-});
-
-export const editCommentById = (comment_id, newContent) => new Promise((resolve, reject) => {
-    const commentIndex = mockComments.findIndex((comment) => comment.comment_id === comment_id);
-    if (commentIndex === -1) {
-        reject("Comment not found");
-    } else {
-        mockComments[commentIndex].content = newContent;
-        setTimeout(() => resolve(mockComments[commentIndex]), 500);
+export const addComment = (recipe_id, user_id, text) => {
+    if (!isLoggedIn()) {
+        return Promise.reject("You must be logged in to comment.");
     }
-});
+    const newComment = {
+        comment_id: mockComments.length + 1,
+        recipe_id,
+        user_id,
+        text,
+        date: new Date().toISOString().split("T")[0],
+    };
+    mockComments.push(newComment);
+    return Promise.resolve(newComment);
+};
+
+export const deleteCommentById = (comment_id) => {
+    mockComments = mockComments.filter((comment) => comment.comment_id !== comment_id);
+    return Promise.resolve({ success: true });
+};
+
+export const editCommentById = (comment_id, newContent) => {
+    const comment = mockComments.find((c) => c.comment_id === comment_id);
+    if (comment) {
+        comment.content = newContent;
+        return Promise.resolve(comment);
+    }
+    return Promise.reject("Comment not found");
+};
 
 // ========================
 // Favorites Service
 // ========================
 
 let mockFavorites = [
-    { favorite_id: 1, user_id: 1, recipe_id: 1, favorited_at: new Date().toISOString() },
-    { favorite_id: 2, user_id: 1, recipe_id: 2, favorited_at: new Date().toISOString() },
-    { favorite_id: 3, user_id: 2, recipe_id: 1, favorited_at: new Date().toISOString() }
+    { favorite_id: 1, recipe_id: 1, user_id: 1 },
+    { favorite_id: 2, recipe_id: 1, user_id: 2 },
+    { favorite_id: 3, recipe_id: 2, user_id: 3 },
+    { favorite_id: 4, recipe_id: 2, user_id: 4 },
+    { favorite_id: 5, recipe_id: 3, user_id: 5 },
+    { favorite_id: 6, recipe_id: 3, user_id: 6 },
+    { favorite_id: 7, recipe_id: 3, user_id: 2 }
 ];
 
-export const getFavoritesByUserId = (user_id) => new Promise((resolve) => {
-    const favorites = mockFavorites.filter((fav) => fav.user_id === user_id);
-    setTimeout(() => resolve(favorites), 500);
-});
 
-export const addFavorite = (user_id, recipe_id) => new Promise((resolve, reject) => {
-    const existingFavorite = mockFavorites.find((fav) => fav.user_id === user_id && fav.recipe_id === recipe_id);
-    if (existingFavorite) {
-        reject("Recipe is already favorited by this user.");
-    } else {
-        const newFavorite = { favorite_id: mockFavorites.length + 1, user_id, recipe_id, favorited_at: new Date().toISOString() };
-        mockFavorites.push(newFavorite);
-        setTimeout(() => resolve(newFavorite), 500);
+
+export const getFavoritesByUserId = (user_id) => Promise.resolve(mockFavorites.filter((fav) => fav.user_id === user_id));
+
+export const addFavorite = (user_id, recipe_id) => {
+    if (mockFavorites.some((fav) => fav.user_id === user_id && fav.recipe_id === recipe_id)) {
+        return Promise.reject("Recipe is already favorited by this user.");
     }
-});
+    const newFavorite = { favorite_id: mockFavorites.length + 1, user_id, recipe_id };
+    mockFavorites.push(newFavorite);
+    return Promise.resolve(newFavorite);
+};
 
-export const removeFavorite = (user_id, recipe_id) => new Promise((resolve) => {
+export const removeFavorite = (user_id, recipe_id) => {
     mockFavorites = mockFavorites.filter((fav) => !(fav.user_id === user_id && fav.recipe_id === recipe_id));
-    setTimeout(() => resolve({ success: true }), 500);
-});
+    return Promise.resolve({ success: true });
+};
+
+
