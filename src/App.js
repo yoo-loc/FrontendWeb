@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import Home from './components/Home';
 import Dashboard from './components/Dashboard';
 import Login from './components/Login';
+import Signup from './components/Signup';
 import Profile from './components/Profile';
 import RecipeList from './components/RecipeList'; // Import RecipeList
 import RecipeForm from './components/RecipeForm'; // Import RecipeForm
@@ -58,6 +59,9 @@ const App = () => {
 
                 {/* Login Route */}
                 <Route path="/login" element={isAuthenticated ? <Navigate to="/profile" replace /> : <Login />} />
+
+                {/* Signup Route */}
+                <Route path="/signup" element={isAuthenticated ? <Navigate to="/profile" replace /> : <Signup />} />
 
                 {/* Protected Routes */}
                 <Route path="/discover" element={isAuthenticated ? <DiscoverRecipes /> : <Navigate to="/login" replace />} />
