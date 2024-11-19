@@ -4,12 +4,15 @@ import './RecipeList.css';
 
 const RecipeList = () => {
     const [recipes, setRecipes] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filteredRecipes, setFilteredRecipes] = useState([]);
 
     useEffect(() => {
         const fetchRecipes = async () => {
             try {
                 const response = await axios.get('http://localhost:8080/recipes/all');
                 setRecipes(response.data);
+                setFilteredRecipes(response.data); // Initialize filtered recipes
             } catch (error) {
                 console.error('Error fetching recipes:', error);
             }
@@ -18,16 +21,31 @@ const RecipeList = () => {
         fetchRecipes();
     }, []);
 
+    const handleSearch = () => {
+        console.log('Search button clicked!'); // Debug message
+        if (searchQuery.trim() === '') {
+            setFilteredRecipes(recipes); // Show all recipes if search is empty
+        } else {
+            const filtered = recipes.filter(recipe =>
+                recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (Array.isArray(recipe.ingredients)
+                    ? recipe.ingredients.join(', ').toLowerCase().includes(searchQuery.toLowerCase())
+                    : recipe.ingredients.toLowerCase().includes(searchQuery.toLowerCase()))
+            );
+            console.log('Filtered recipes:', filtered); // Debug filtered results
+            setFilteredRecipes(filtered);
+        }
+    };
+
     const handleDelete = async (id) => {
         try {
             await axios.delete(`http://localhost:8080/recipes/${id}`);
-            // Remove the deleted recipe from the state
             setRecipes(recipes.filter(recipe => recipe.id !== id));
+            setFilteredRecipes(filteredRecipes.filter(recipe => recipe.id !== id)); // Update filtered list
         } catch (error) {
             console.error('Error deleting recipe:', error);
         }
     };
-
 
     const handleAddToFavorites = async (recipeId) => {
         try {
@@ -45,9 +63,21 @@ const RecipeList = () => {
     return (
         <div className="recipe-list-container">
             <h1 className="recipe-list-title">Recipes</h1>
-            {recipes.length > 0 ? (
+
+            {/* Search Bar */}
+            <div className="search-bar">
+                <input
+                    type="text"
+                    placeholder="Search by title or ingredients..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <button onClick={handleSearch}>Search</button>
+            </div>
+
+            {filteredRecipes.length > 0 ? (
                 <div className="recipe-grid">
-                    {recipes.map((recipe) => (
+                    {filteredRecipes.map((recipe) => (
                         <div className="recipe-card" key={recipe.id}>
                             <h2>{recipe.title}</h2>
                             <img
@@ -55,16 +85,20 @@ const RecipeList = () => {
                                 alt={recipe.title}
                                 className="recipe-image"
                             />
-                            <p><strong>Ingredients:</strong> {recipe.ingredients}</p>
+                            <p>
+                                <strong>Ingredients:</strong>{' '}
+                                {Array.isArray(recipe.ingredients)
+                                    ? recipe.ingredients.join(', ')
+                                    : recipe.ingredients}
+                            </p>
                             <p><strong>Instructions:</strong> {recipe.instructions}</p>
                             <p><strong>Dietary Tags:</strong> {recipe.dietaryTags}</p>
-                          
+
                             <button onClick={() => handleDelete(recipe.id)} className="delete-button">
                                 Delete
                             </button>
                             <button onClick={() => handleAddToFavorites(recipe.id)} className="favorite-button">
-                            
-                              Add to Favorites
+                                Add to Favorites
                             </button>
                         </div>
                     ))}
@@ -77,4 +111,3 @@ const RecipeList = () => {
 };
 
 export default RecipeList;
-
