@@ -1,29 +1,31 @@
+/* src/components/Home.css */
+
 .home {
     text-align: center;
     font-family: 'Arial', sans-serif;
     padding: 20px;
     background-color: #f8f9fa;
-  }
+}
   
-  .home-hero {
+.home-hero {
     background: linear-gradient(to right, #ff7e5f, #feb47b);
     color: white;
     padding: 50px 20px;
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  }
+}
   
-  .home-title {
+.home-title {
     font-size: 2.5rem;
     margin-bottom: 20px;
-  }
+}
   
-  .home-description {
+.home-description {
     font-size: 1.2rem;
     margin-bottom: 30px;
-  }
+}
   
-  .explore-button {
+.explore-button {
     padding: 10px 20px;
     font-size: 1.1rem;
     background-color: #007bff;
@@ -32,39 +34,45 @@
     border-radius: 5px;
     cursor: pointer;
     transition: background 0.3s ease;
-  }
+}
   
-  .explore-button:hover {
+.explore-button:hover {
     background-color: #0056b3;
-  }
+}
   
-  .home-highlight-section {
+.home-highlight-section {
     display: flex;
     justify-content: space-around;
     margin-top: 40px;
-  }
+}
   
-  .highlight {
-    background: white;
+.highlight {
+    background: #fff;
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 12px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     max-width: 300px;
     text-align: center;
-  }
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.highlight:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
   
-  .highlight-image {
+.highlight-image {
     width: 100%;
     border-radius: 8px;
-  }
+}
   
-  .highlight h3 {
+.highlight h3 {
     margin-top: 15px;
     font-size: 1.5rem;
-  }
+}
   
-  .highlight p {
+.highlight p {
     font-size: 1rem;
     color: #555;
-  }
+}
   

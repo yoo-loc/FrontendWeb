@@ -62,10 +62,7 @@ const App = () => {
 
                 {/* Login Route */}
                 <Route path="/login" element={isAuthenticated ? <Navigate to="/profile" replace /> : <Login />} />
-
-                {/* Signup Route */}
-                <Route path="/signup" element={isAuthenticated ? <Navigate to="/profile" replace /> : <Signup />} />
-
+                
                 {/* Signup Route */}
                 <Route path="/signup" element={isAuthenticated ? <Navigate to="/profile" replace /> : <Signup />} />
 
