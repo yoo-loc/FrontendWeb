@@ -1,62 +1,40 @@
-import React, { useEffect, useState } from 'react';
-import { getFavoritesByUserId, addFavorite, removeFavorite,getRecipeById  } from '../services/dataService';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-
-const FavoriteRecipes = ({ userId, recipeId }) => {
+const FavoriteRecipes = () => {
     const [favorites, setFavorites] = useState([]);
-    const [recipes, setRecipes] = useState([]); // Store full recipe details
-    const [error, setError] = useState("");
+    const userId = '673aac47856ea5f2b2171837'; // Use actual logged-in userId
 
-    // Fetch the user's favorite recipes on component mount
     useEffect(() => {
-        getFavoritesByUserId(userId).then((data) => {
-            setFavorites(data);
-            fetchFavoriteRecipes(data);
-        });
+        const fetchFavorites = async () => {
+            try {
+                const response = await axios.get(`http://localhost:8080/recipes/favorites/${userId}`, {
+                    withCredentials: true // Include cookies for authentication
+                });
+                setFavorites(response.data);
+            } catch (error) {
+                console.error('Error fetching favorite recipes:', error);
+            }
+        };
+        
+
+        fetchFavorites();
     }, [userId]);
-
-    // Fetch full recipe details for each favorite
-    const fetchFavoriteRecipes = (favorites) => {
-        Promise.all(favorites.map((fav) => getRecipeById(fav.recipe_id)))
-            .then((fullRecipes) => setRecipes(fullRecipes.filter((recipe) => recipe !== null)));
-    };
-
-    // Function to add a recipe to favorites
-    const handleAddFavorite = () => {
-        addFavorite(userId, recipeId)
-            .then((newFavorite) => {
-                setFavorites([...favorites, newFavorite]);
-                setError(""); // Clear any previous error
-                fetchFavoriteRecipes([...favorites, newFavorite]); // Fetch details for new favorite
-            })
-            .catch((err) => setError(err)); // Display error if recipe is already favorited
-    };
-
-    // Function to remove a recipe from favorites
-    const handleRemoveFavorite = (recipe_id) => {
-        removeFavorite(userId, recipe_id).then(() => {
-            const updatedFavorites = favorites.filter((fav) => fav.recipe_id !== recipe_id);
-            setFavorites(updatedFavorites);
-            setRecipes(recipes.filter((recipe) => recipe.recipe_id !== recipe_id));
-        });
-    };
 
     return (
         <div>
-            <h3>Favorite Recipes</h3>
-            {error && <p className="error-message">{error}</p>}
-            <ul>
-                {recipes.map((recipe) => (
-                    <li key={recipe.recipe_id}>
-                        <h4>{recipe.name}</h4>
-                        <p>Type: {recipe.type}</p>
-                        <p>{recipe.description}</p>
-                        <p>Favorites: {recipe.favorites_count}</p>
-                        <button onClick={() => handleRemoveFavorite(recipe.recipe_id)}>Remove from Favorites</button>
-                    </li>
-                ))}
-            </ul>
-            <button onClick={handleAddFavorite}>Add Recipe to Favorites</button>
+            <h1>Your Favorite Recipes</h1>
+            {favorites.length > 0 ? (
+                favorites.map((recipe) => (
+                    <div key={recipe.id}>
+                        <h2>{recipe.title}</h2>
+                        <p>{recipe.ingredients}</p>
+                        <p>{recipe.instructions}</p>
+                    </div>
+                ))
+            ) : (
+                <p>No favorites yet.</p>
+            )}
         </div>
     );
 };
