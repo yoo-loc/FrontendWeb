@@ -4,15 +4,16 @@ import Navbar from './components/Navbar';
 import Home from './components/Home';
 import Dashboard from './components/Dashboard';
 import Login from './components/Login';
+import FavoriteRecipes from './components/FavoriteRecipes';
 import Signup from './components/Signup';
 import Profile from './components/Profile';
-import RecipeList from './components/RecipeList'; // Import RecipeList
-import RecipeForm from './components/RecipeForm'; // Import RecipeForm
-import DiscoverRecipes from './components/DiscoverRecipes'; // Add this component
-import ShareRecipes from './components/ShareRecipes'; // Correct import, keep only this one
+import RecipeList from './components/RecipeList';
+import RecipeForm from './components/RecipeForm';
+import DiscoverRecipes from './components/DiscoverRecipes';
+import ShareRecipes from './components/ShareRecipes';
 import CookTogether from './components/CookTogether';
 import axios from 'axios';
-import UserFeed from './components/UserFeed'; // No duplicate imports
+import UserFeed from './components/UserFeed';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const App = () => {
@@ -39,6 +40,8 @@ const App = () => {
         return <div>Loading...</div>;
     }
 
+
+    
     return (
         <Router>
             <Navbar />
@@ -53,8 +56,8 @@ const App = () => {
                 {/* Protected Routes */}
                 <Route path="/dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" replace />} />
                 <Route path="/profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" replace />} />
-
-                <Route path="/userFeed" element={isAuthenticated ? <UserFeed /> : <Navigate to="/userFeed" replace />} />
+                <Route path="/favorites" element={isAuthenticated ? <FavoriteRecipes /> : <Navigate to="/login" replace />} />
+                <Route path="/userFeed" element={isAuthenticated ? <UserFeed /> : <Navigate to="/login" replace />} />
                 <Route path="/share" element={isAuthenticated ? <ShareRecipes /> : <Navigate to="/login" replace />} />
 
                 {/* Login Route */}
@@ -63,7 +66,10 @@ const App = () => {
                 {/* Signup Route */}
                 <Route path="/signup" element={isAuthenticated ? <Navigate to="/profile" replace /> : <Signup />} />
 
-                {/* Protected Routes */}
+                {/* Signup Route */}
+                <Route path="/signup" element={isAuthenticated ? <Navigate to="/profile" replace /> : <Signup />} />
+
+                {/* More Protected Routes */}
                 <Route path="/discover" element={isAuthenticated ? <DiscoverRecipes /> : <Navigate to="/login" replace />} />
                 <Route path="/cook-together" element={isAuthenticated ? <CookTogether /> : <Navigate to="/login" replace />} />
 
