@@ -31,7 +31,7 @@ const RecipeList = () => {
 
     const handleAddToFavorites = async (recipeId) => {
         try {
-            const userId = 'USER_ID'; // Replace with dynamic user ID logic
+            const userId = '673aac47856eaf52b2171837'; // Replace with dynamic user ID logic
             await axios.post(`http://localhost:8080/recipes/favorites/${userId}`, recipeId, {
                 headers: { 'Content-Type': 'application/json' }
             });
@@ -58,9 +58,7 @@ const RecipeList = () => {
                             <p><strong>Ingredients:</strong> {recipe.ingredients}</p>
                             <p><strong>Instructions:</strong> {recipe.instructions}</p>
                             <p><strong>Dietary Tags:</strong> {recipe.dietaryTags}</p>
-                            <a href={recipe.url} target="_blank" rel="noopener noreferrer" className="view-recipe-link">
-                                View Full Recipe
-                            </a>
+                          
                             <button onClick={() => handleDelete(recipe.id)} className="delete-button">
                                 Delete
                             </button>
