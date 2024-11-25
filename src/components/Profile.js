@@ -8,17 +8,7 @@ const Profile = () => {
     const [loading, setLoading] = useState(true); // Add loading state
     const navigate = useNavigate();
 
-    useEffect(() => {
-        axios.get('http://localhost:8080/api/user', { withCredentials: true })
-            .then(response => {
-                setUser(response.data);
-                setLoading(false); // Stop loading once data is fetched
-            })
-            .catch(error => {
-                console.error('Error fetching user data', error);
-                navigate('/login'); // Navigate to login on error
-            });
-    }, [navigate]);
+   
 
     const handleLogout = async () => {
         try {

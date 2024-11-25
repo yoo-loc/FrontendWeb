@@ -4,14 +4,29 @@ import './RecipeList.css';
 
 const RecipeList = () => {
     const [recipes, setRecipes] = useState([]);
+    const [error, setError] = useState(''); // Add state for error messages
 
     useEffect(() => {
         const fetchRecipes = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/recipes/all');
+                const storedUser = JSON.parse(sessionStorage.getItem('user'));
+                if (!storedUser) {
+                    console.error('User is not authenticated.');
+                    setError('You need to log in to view recipes.');
+                    return;
+                }
+
+                const response = await axios.get('http://localhost:8080/recipes/all', {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${storedUser.token}` // Example for token
+                    },
+                    withCredentials: true, // Include cookies for session-based authentication
+                });
                 setRecipes(response.data);
             } catch (error) {
                 console.error('Error fetching recipes:', error);
+                setError('Failed to fetch recipes. Please try again later.');
             }
         };
 
@@ -25,26 +40,33 @@ const RecipeList = () => {
             setRecipes(recipes.filter(recipe => recipe.id !== id));
         } catch (error) {
             console.error('Error deleting recipe:', error);
+            setError('Failed to delete the recipe. Please try again.');
         }
     };
 
-
     const handleAddToFavorites = async (recipeId) => {
         try {
-            const userId = 'USER_ID'; // Replace with dynamic user ID logic
-            await axios.post(`http://localhost:8080/recipes/favorites/${userId}`, recipeId, {
+            const storedUser = JSON.parse(sessionStorage.getItem('user'));
+            if (!storedUser) {
+                console.error('User is not authenticated.');
+                setError('You need to log in to add favorites.');
+                return;
+            }
+
+            await axios.post(`http://localhost:8080/recipes/favorites/${storedUser.id}`, recipeId, {
                 headers: { 'Content-Type': 'application/json' }
             });
             alert('Recipe added to favorites!');
         } catch (error) {
             console.error('Error adding to favorites:', error);
-            alert('Failed to add to favorites.');
+            setError('Failed to add the recipe to favorites. Please try again.');
         }
     };
 
     return (
         <div className="recipe-list-container">
             <h1 className="recipe-list-title">Recipes</h1>
+            {error && <p className="error-message">{error}</p>} {/* Display error message */}
             {recipes.length > 0 ? (
                 <div className="recipe-grid">
                     {recipes.map((recipe) => (
@@ -65,8 +87,7 @@ const RecipeList = () => {
                                 Delete
                             </button>
                             <button onClick={() => handleAddToFavorites(recipe.id)} className="favorite-button">
-                            
-                              Add to Favorites
+                                Add to Favorites
                             </button>
                         </div>
                     ))}
@@ -79,4 +100,3 @@ const RecipeList = () => {
 };
 
 export default RecipeList;
-
