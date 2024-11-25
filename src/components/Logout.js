@@ -1,23 +1,32 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from '../AuthContext'; // Updated import
 
 const Logout = () => {
+    const { logout } = useAuthContext(); // Access logout function from AuthContext
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Function to clear session data on logout
-        const logoutUser = () => {
-            // Clear sessionStorage and localStorage
-            sessionStorage.clear();  // Clears all items in sessionStorage
-            localStorage.clear();    // Clears all items in localStorage
+        const logoutUser = async () => {
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/logout', {
+                    method: 'POST',
+                    credentials: 'include', // Include cookies for session management
+                });
 
-            // Redirect to login page after logout
-            navigate('/login');  // Or change to '/' if you want to redirect to home page
+                if (response.ok) {
+                    logout(); // Clear context and session storage
+                    navigate('/login'); // Redirect to login page
+                } else {
+                    console.error('Logout failed:', response.status);
+                }
+            } catch (error) {
+                console.error('Error during logout:', error);
+            }
         };
 
-        // Call the logout function
         logoutUser();
-    }, [navigate]);
+    }, [logout, navigate]);
 
     return (
         <div className="logout-page">

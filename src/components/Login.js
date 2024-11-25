@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from '../AuthContext'; // Updated import
 import './Login.css';
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [error, setError] = useState('');
+    const { login } = useAuthContext(); // Access login function from AuthContext
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -14,39 +16,30 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
         try {
             const response = await fetch('http://localhost:8080/api/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                credentials: 'include', // Include cookies for session management
+                credentials: 'include', // Include cookies for session-based authentication
                 body: JSON.stringify(formData),
             });
-    
+
             if (!response.ok) {
                 const errorData = await response.json();
-                console.error('Login failed:', errorData);
                 setError(errorData.message || 'Invalid login credentials.');
                 return;
             }
-    
+
             const data = await response.json();
-            console.log('Login successful:', data);
-    
-            // Store user data in sessionStorage
-            sessionStorage.setItem('user', JSON.stringify(data.user));
-    
-            // Navigate to the dashboard
-            navigate('/dashboard');
+            login(data.user); // Update context with logged-in user
+            navigate('/'); // Redirect to the homepage
         } catch (err) {
-            console.error('Login request failed:', err);
             setError('Failed to connect to the server. Please try again later.');
         }
     };
-    
-    
 
     return (
         <div className="login-page">
