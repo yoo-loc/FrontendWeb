@@ -15,7 +15,10 @@ import UserFeed from './components/UserFeed';
 import SignUp from './components/SignUp';
 import Logout from './components/Logout';
 import FavoriteRecipes from './components/FavoriteRecipes';
+<<<<<<< HEAD
 import RecipeDetail from './components/RecipeDetail';
+=======
+>>>>>>> e8eb04e (Added AuthContext and updated App.js for authentication)
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const App = () => {
@@ -43,7 +46,10 @@ const App = () => {
                 <Route path="/share" element={isAuthenticated ? <ShareRecipes /> : <Navigate to="/login" replace />} />
                 <Route path="/cook-together" element={isAuthenticated ? <CookTogether /> : <Navigate to="/login" replace />} />
                 <Route path="/favoriteRecipes" element={isAuthenticated ? <FavoriteRecipes /> : <Navigate to="/login" replace />} />
+<<<<<<< HEAD
                 <Route path="/recipes/:id/details" element={<RecipeDetail />} />
+=======
+>>>>>>> e8eb04e (Added AuthContext and updated App.js for authentication)
 
                 {/* SignUp Route */}
                 <Route path="/signup" element={<SignUp />} />
