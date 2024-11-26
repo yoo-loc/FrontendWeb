@@ -16,9 +16,13 @@ import SignUp from './components/SignUp';
 import Logout from './components/Logout';
 import FavoriteRecipes from './components/FavoriteRecipes';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import RecipeDetail from './components/RecipeDetail';
 =======
 >>>>>>> e8eb04e (Added AuthContext and updated App.js for authentication)
+=======
+import RecipeDetail from './components/RecipeDetail';
+>>>>>>> 001c691 (Updated RecipeDetail with session-based authentication and refined App.js routing)
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const App = () => {
@@ -47,9 +51,13 @@ const App = () => {
                 <Route path="/cook-together" element={isAuthenticated ? <CookTogether /> : <Navigate to="/login" replace />} />
                 <Route path="/favoriteRecipes" element={isAuthenticated ? <FavoriteRecipes /> : <Navigate to="/login" replace />} />
 <<<<<<< HEAD
+<<<<<<< HEAD
                 <Route path="/recipes/:id/details" element={<RecipeDetail />} />
 =======
 >>>>>>> e8eb04e (Added AuthContext and updated App.js for authentication)
+=======
+                <Route path="/recipes/:id/details" element={<RecipeDetail />} />
+>>>>>>> 001c691 (Updated RecipeDetail with session-based authentication and refined App.js routing)
 
                 {/* SignUp Route */}
                 <Route path="/signup" element={<SignUp />} />

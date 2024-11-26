@@ -8,9 +8,9 @@ const RecipeList = () => {
     const [filteredRecipes, setFilteredRecipes] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [error, setError] = useState('');
-    const [loading, setLoading] = useState(true);
-    const [userId, setUserId] = useState(null);
-    const navigate = useNavigate();
+    const [loading, setLoading] = useState(true); // Loading state for fetching recipes
+    const [userId, setUserId] = useState(null); // Store the user's ID
+    const navigate = useNavigate(); // Initialize useNavigate
 
     useEffect(() => {
         const fetchRecipes = async () => {
@@ -22,23 +22,23 @@ const RecipeList = () => {
                     setLoading(false);
                     return;
                 }
-                setUserId(storedUser.id);
+                setUserId(storedUser.id); // Set the logged-in user's ID
 
                 const response = await axios.get('http://localhost:8080/recipes/all', {
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${storedUser.token}`,
+                        'Authorization': `Bearer ${storedUser.token}`, // Example for token
                     },
                     withCredentials: true,
                 });
 
                 setRecipes(response.data);
-                setFilteredRecipes(response.data);
+                setFilteredRecipes(response.data); // Initialize filtered recipes
             } catch (error) {
                 console.error('Error fetching recipes:', error);
                 setError('Failed to fetch recipes. Please try again later.');
             } finally {
-                setLoading(false);
+                setLoading(false); // End loading state
             }
         };
 
@@ -50,19 +50,14 @@ const RecipeList = () => {
         const filtered = recipes.filter((recipe) => {
             const titleMatch = recipe.title.toLowerCase().includes(query);
             const tagsMatch = Array.isArray(recipe.dietaryTags)
-                ? recipe.dietaryTags.some((tag) => tag.toLowerCase().includes(query))
-                : recipe.dietaryTags?.toLowerCase().includes(query);
+                ? recipe.dietaryTags.some((tag) => tag.toLowerCase().includes(query)) // Handle dietaryTags as an array
+                : recipe.dietaryTags && recipe.dietaryTags.toLowerCase().includes(query); // Handle dietaryTags as a string
             return titleMatch || tagsMatch;
         });
         setFilteredRecipes(filtered);
     };
 
-    const handleDelete = async (id, ownerId) => {
-        if (ownerId !== userId) {
-            alert("You can only delete your own recipes.");
-            return;
-        }
-
+    const handleDelete = async (id) => {
         try {
             const storedUser = JSON.parse(sessionStorage.getItem('user'));
             await axios.delete(`http://localhost:8080/recipes/${id}`, {
@@ -73,7 +68,7 @@ const RecipeList = () => {
             });
 
             setRecipes(recipes.filter((recipe) => recipe.id !== id));
-            setFilteredRecipes(filteredRecipes.filter((recipe) => recipe.id !== id));
+            setFilteredRecipes(filteredRecipes.filter((recipe) => recipe.id !== id)); // Update filtered recipes
             alert('Recipe deleted successfully!');
         } catch (error) {
             console.error('Error deleting recipe:', error);
@@ -89,10 +84,10 @@ const RecipeList = () => {
                 return;
             }
 
-            await axios.post(`http://localhost:8080/recipes/favorites/${storedUser.id}`, { recipeId }, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${storedUser.token}`,
+            await axios.post(`http://localhost:8080/recipes/favorites/${storedUser.id}`, recipeId, {
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'Authorization': `Bearer ${storedUser.token}` 
                 },
             });
 
@@ -104,11 +99,11 @@ const RecipeList = () => {
     };
 
     const handleViewDetails = (id) => {
-        navigate(`/recipes/${id}/details`);
+        navigate(`/recipes/${id}/details`); // Navigate to the RecipeDetail page
     };
 
     if (loading) {
-        return <div className="loading-message">Loading recipes...</div>;
+        return <div className="loading-message">Loading recipes...</div>; // Display loading message while fetching
     }
 
     return (
@@ -139,12 +134,12 @@ const RecipeList = () => {
                             <p><strong>Dietary Tags:</strong> {recipe.dietaryTags}</p>
                             <button
                                 className="view-details-button"
-                                onClick={() => handleViewDetails(recipe.id)}
+                                onClick={() => handleViewDetails(recipe.id)} // Navigate to RecipeDetail
                             >
                                 View Details
                             </button>
                             <button
-                                onClick={() => handleDelete(recipe.id, recipe.ownerId)}
+                                onClick={() => handleDelete(recipe.id)}
                                 className="delete-button"
                             >
                                 Delete
