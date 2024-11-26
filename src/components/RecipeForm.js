@@ -27,27 +27,29 @@ const RecipeForm = () => {
     // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true); // Start loading
-        setMessage(''); // Clear previous messages
-        setShowPopup(false); // Hide previous popup
-
+        setLoading(true);
+        setMessage('');
+        setShowPopup(false);
+    
         try {
             // Parse dietaryTags into an array
             const dataToSubmit = {
                 ...formData,
                 dietaryTags: parseDietaryTags(formData.dietaryTags)
             };
-
+    
             // POST request to backend with session credentials
             const response = await axios.post('http://localhost:8080/recipes', dataToSubmit, {
-                withCredentials: true // Include cookies for session-based authentication
+                withCredentials: true, // Include cookies for session-based authentication
+                headers: {
+                    'Content-Type': 'application/json',
+                },
             });
-
+    
             console.log('Recipe submitted:', response.data);
-
             setMessage('Recipe added successfully!');
             setShowPopup(true);
-
+    
             // Reset form fields
             setFormData({
                 title: '',
@@ -56,14 +58,14 @@ const RecipeForm = () => {
                 dietaryTags: '',
                 imageUrl: ''
             });
-
+    
             // Hide popup after 3 seconds
             setTimeout(() => {
                 setShowPopup(false);
             }, 3000);
         } catch (error) {
             console.error('Error submitting recipe:', error);
-
+    
             // Error handling with detailed messages
             if (error.response) {
                 setMessage(`Error: ${error.response.data.message || 'Failed to submit recipe.'}`);
@@ -72,12 +74,13 @@ const RecipeForm = () => {
             } else {
                 setMessage('Unexpected error occurred.');
             }
-
+    
             setShowPopup(true);
         } finally {
-            setLoading(false); // End loading
+            setLoading(false);
         }
     };
+    
 
     return (
         <div>
