@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import axios from 'axios';
 import './RecipeList.css';
 
 const RecipeList = () => {
     const [recipes, setRecipes] = useState([]);
-    const [filteredRecipes, setFilteredRecipes] = useState([]); // State for filtered recipes
-    const [searchQuery, setSearchQuery] = useState(''); // State for search input
-    const [error, setError] = useState(''); // State for error messages
+    const [filteredRecipes, setFilteredRecipes] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(true); // Loading state for fetching recipes
+    const [userId, setUserId] = useState(null); // Store the user's ID
+    const navigate = useNavigate(); // Initialize useNavigate
 
     useEffect(() => {
         const fetchRecipes = async () => {
@@ -15,21 +19,25 @@ const RecipeList = () => {
                 if (!storedUser) {
                     console.error('User is not authenticated.');
                     setError('You need to log in to view recipes.');
+                    setLoading(false);
                     return;
                 }
+                setUserId(storedUser.id); // Set the logged-in user's ID
 
                 const response = await axios.get('http://localhost:8080/recipes/all', {
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${storedUser.token}`, // Example for token
+                        'Authorization': `Bearer ${storedUser.token}`,
                     },
-                    withCredentials: true, // Include cookies for session-based authentication
+                    withCredentials: true,
                 });
                 setRecipes(response.data);
-                setFilteredRecipes(response.data); // Initialize filtered recipes
+                setFilteredRecipes(response.data);
             } catch (error) {
                 console.error('Error fetching recipes:', error);
                 setError('Failed to fetch recipes. Please try again later.');
+            } finally {
+                setLoading(false); // End loading state
             }
         };
 
@@ -41,18 +49,30 @@ const RecipeList = () => {
         const filtered = recipes.filter((recipe) => {
             const titleMatch = recipe.title.toLowerCase().includes(query);
             const tagsMatch = Array.isArray(recipe.dietaryTags)
-                ? recipe.dietaryTags.some((tag) => tag.toLowerCase().includes(query)) // Handle dietaryTags as an array
-                : recipe.dietaryTags && recipe.dietaryTags.toLowerCase().includes(query); // Handle dietaryTags as a string
+                ? recipe.dietaryTags.some((tag) => tag.toLowerCase().includes(query))
+                : recipe.dietaryTags && recipe.dietaryTags.toLowerCase().includes(query);
             return titleMatch || tagsMatch;
         });
         setFilteredRecipes(filtered);
     };
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (id, ownerId) => {
+        if (ownerId !== userId) {
+            alert("You can only delete your own recipes.");
+            return;
+        }
+
         try {
-            await axios.delete(`http://localhost:8080/recipes/${id}`);
+            const storedUser = JSON.parse(sessionStorage.getItem('user'));
+            await axios.delete(`http://localhost:8080/recipes/${id}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${storedUser.token}`,
+                },
+            });
             setRecipes(recipes.filter((recipe) => recipe.id !== id));
-            setFilteredRecipes(filteredRecipes.filter((recipe) => recipe.id !== id)); // Update filtered recipes
+            setFilteredRecipes(filteredRecipes.filter((recipe) => recipe.id !== id));
+            alert('Recipe deleted successfully!');
         } catch (error) {
             console.error('Error deleting recipe:', error);
             setError('Failed to delete the recipe. Please try again.');
@@ -69,7 +89,10 @@ const RecipeList = () => {
             }
 
             await axios.post(`http://localhost:8080/recipes/favorites/${storedUser.id}`, recipeId, {
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${storedUser.token}`,
+                },
             });
             alert('Recipe added to favorites!');
         } catch (error) {
@@ -77,6 +100,14 @@ const RecipeList = () => {
             setError('Failed to add the recipe to favorites. Please try again.');
         }
     };
+
+    const handleViewDetails = (id) => {
+        navigate(`/recipes/${id}/details`); // Navigate to the RecipeDetail page
+    };
+
+    if (loading) {
+        return <div className="loading-message">Loading recipes...</div>; // Display loading message while fetching
+    }
 
     return (
         <div className="recipe-list-container">
@@ -104,13 +135,22 @@ const RecipeList = () => {
                             <p><strong>Ingredients:</strong> {recipe.ingredients}</p>
                             <p><strong>Instructions:</strong> {recipe.instructions}</p>
                             <p><strong>Dietary Tags:</strong> {recipe.dietaryTags}</p>
-                            <a href={recipe.url} target="_blank" rel="noopener noreferrer" className="view-recipe-link">
-                                View Full Recipe
-                            </a>
-                            <button onClick={() => handleDelete(recipe.id)} className="delete-button">
+                            <button
+                                className="view-details-button"
+                                onClick={() => handleViewDetails(recipe.id)} // Navigate to RecipeDetail
+                            >
+                                View Details
+                            </button>
+                            <button
+                                onClick={() => handleDelete(recipe.id, recipe.ownerId)}
+                                className="delete-button"
+                            >
                                 Delete
                             </button>
-                            <button onClick={() => handleAddToFavorites(recipe.id)} className="favorite-button">
+                            <button
+                                onClick={() => handleAddToFavorites(recipe.id)}
+                                className="favorite-button"
+                            >
                                 Add to Favorites
                             </button>
                         </div>

@@ -15,6 +15,7 @@ import UserFeed from './components/UserFeed';
 import SignUp from './components/SignUp';
 import Logout from './components/Logout';
 import FavoriteRecipes from './components/FavoriteRecipes';
+import RecipeDetail from './components/RecipeDetail';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const App = () => {
@@ -42,6 +43,7 @@ const App = () => {
                 <Route path="/share" element={isAuthenticated ? <ShareRecipes /> : <Navigate to="/login" replace />} />
                 <Route path="/cook-together" element={isAuthenticated ? <CookTogether /> : <Navigate to="/login" replace />} />
                 <Route path="/favoriteRecipes" element={isAuthenticated ? <FavoriteRecipes /> : <Navigate to="/login" replace />} />
+                <Route path="/recipes/:id/details" element={<RecipeDetail />} />
 
                 {/* SignUp Route */}
                 <Route path="/signup" element={<SignUp />} />
