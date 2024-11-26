@@ -4,7 +4,9 @@ import './RecipeList.css';
 
 const RecipeList = () => {
     const [recipes, setRecipes] = useState([]);
-    const [error, setError] = useState(''); // Add state for error messages
+    const [filteredRecipes, setFilteredRecipes] = useState([]); // State for filtered recipes
+    const [searchQuery, setSearchQuery] = useState(''); // State for search input
+    const [error, setError] = useState(''); // State for error messages
 
     useEffect(() => {
         const fetchRecipes = async () => {
@@ -19,11 +21,12 @@ const RecipeList = () => {
                 const response = await axios.get('http://localhost:8080/recipes/all', {
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${storedUser.token}` // Example for token
+                        'Authorization': `Bearer ${storedUser.token}`, // Example for token
                     },
                     withCredentials: true, // Include cookies for session-based authentication
                 });
                 setRecipes(response.data);
+                setFilteredRecipes(response.data); // Initialize filtered recipes
             } catch (error) {
                 console.error('Error fetching recipes:', error);
                 setError('Failed to fetch recipes. Please try again later.');
@@ -33,11 +36,23 @@ const RecipeList = () => {
         fetchRecipes();
     }, []);
 
+    const handleSearch = () => {
+        const query = searchQuery.toLowerCase();
+        const filtered = recipes.filter((recipe) => {
+            const titleMatch = recipe.title.toLowerCase().includes(query);
+            const tagsMatch = Array.isArray(recipe.dietaryTags)
+                ? recipe.dietaryTags.some((tag) => tag.toLowerCase().includes(query)) // Handle dietaryTags as an array
+                : recipe.dietaryTags && recipe.dietaryTags.toLowerCase().includes(query); // Handle dietaryTags as a string
+            return titleMatch || tagsMatch;
+        });
+        setFilteredRecipes(filtered);
+    };
+
     const handleDelete = async (id) => {
         try {
             await axios.delete(`http://localhost:8080/recipes/${id}`);
-            // Remove the deleted recipe from the state
-            setRecipes(recipes.filter(recipe => recipe.id !== id));
+            setRecipes(recipes.filter((recipe) => recipe.id !== id));
+            setFilteredRecipes(filteredRecipes.filter((recipe) => recipe.id !== id)); // Update filtered recipes
         } catch (error) {
             console.error('Error deleting recipe:', error);
             setError('Failed to delete the recipe. Please try again.');
@@ -54,7 +69,7 @@ const RecipeList = () => {
             }
 
             await axios.post(`http://localhost:8080/recipes/favorites/${storedUser.id}`, recipeId, {
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json' },
             });
             alert('Recipe added to favorites!');
         } catch (error) {
@@ -66,10 +81,19 @@ const RecipeList = () => {
     return (
         <div className="recipe-list-container">
             <h1 className="recipe-list-title">Recipes</h1>
-            {error && <p className="error-message">{error}</p>} {/* Display error message */}
-            {recipes.length > 0 ? (
+            {error && <p className="error-message">{error}</p>}
+            <div className="search-bar">
+                <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search by title or dietary tags"
+                />
+                <button onClick={handleSearch}>Search</button>
+            </div>
+            {filteredRecipes.length > 0 ? (
                 <div className="recipe-grid">
-                    {recipes.map((recipe) => (
+                    {filteredRecipes.map((recipe) => (
                         <div className="recipe-card" key={recipe.id}>
                             <h2>{recipe.title}</h2>
                             <img
