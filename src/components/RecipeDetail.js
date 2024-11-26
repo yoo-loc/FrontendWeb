@@ -120,7 +120,12 @@ const RecipeDetail = () => {
             <ul>
                 {comments.map((comment) => (
                     <li key={comment.id}>
-                        <p><strong>{comment.username}:</strong> {comment.content}</p>
+                        <p>
+                            <strong>{comment.username}:</strong> {comment.content}
+                        </p>
+                        <p className="comment-date">
+                            <em>Posted on: {new Date(comment.createdAt).toLocaleString()}</em>
+                        </p>
                     </li>
                 ))}
             </ul>
