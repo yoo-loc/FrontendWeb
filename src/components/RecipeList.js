@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './RecipeList.css';
 
@@ -8,9 +8,9 @@ const RecipeList = () => {
     const [filteredRecipes, setFilteredRecipes] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [error, setError] = useState('');
-    const [loading, setLoading] = useState(true); // Loading state for fetching recipes
-    const [userId, setUserId] = useState(null); // Store the user's ID
-    const navigate = useNavigate(); // Initialize useNavigate
+    const [loading, setLoading] = useState(true);
+    const [userId, setUserId] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchRecipes = async () => {
@@ -22,7 +22,7 @@ const RecipeList = () => {
                     setLoading(false);
                     return;
                 }
-                setUserId(storedUser.id); // Set the logged-in user's ID
+                setUserId(storedUser.id);
 
                 const response = await axios.get('http://localhost:8080/recipes/all', {
                     headers: {
@@ -31,13 +31,14 @@ const RecipeList = () => {
                     },
                     withCredentials: true,
                 });
+
                 setRecipes(response.data);
                 setFilteredRecipes(response.data);
             } catch (error) {
                 console.error('Error fetching recipes:', error);
                 setError('Failed to fetch recipes. Please try again later.');
             } finally {
-                setLoading(false); // End loading state
+                setLoading(false);
             }
         };
 
@@ -50,7 +51,7 @@ const RecipeList = () => {
             const titleMatch = recipe.title.toLowerCase().includes(query);
             const tagsMatch = Array.isArray(recipe.dietaryTags)
                 ? recipe.dietaryTags.some((tag) => tag.toLowerCase().includes(query))
-                : recipe.dietaryTags && recipe.dietaryTags.toLowerCase().includes(query);
+                : recipe.dietaryTags?.toLowerCase().includes(query);
             return titleMatch || tagsMatch;
         });
         setFilteredRecipes(filtered);
@@ -70,6 +71,7 @@ const RecipeList = () => {
                     'Authorization': `Bearer ${storedUser.token}`,
                 },
             });
+
             setRecipes(recipes.filter((recipe) => recipe.id !== id));
             setFilteredRecipes(filteredRecipes.filter((recipe) => recipe.id !== id));
             alert('Recipe deleted successfully!');
@@ -83,17 +85,17 @@ const RecipeList = () => {
         try {
             const storedUser = JSON.parse(sessionStorage.getItem('user'));
             if (!storedUser) {
-                console.error('User is not authenticated.');
                 setError('You need to log in to add favorites.');
                 return;
             }
 
-            await axios.post(`http://localhost:8080/recipes/favorites/${storedUser.id}`, recipeId, {
+            await axios.post(`http://localhost:8080/recipes/favorites/${storedUser.id}`, { recipeId }, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${storedUser.token}`,
                 },
             });
+
             alert('Recipe added to favorites!');
         } catch (error) {
             console.error('Error adding to favorites:', error);
@@ -102,11 +104,11 @@ const RecipeList = () => {
     };
 
     const handleViewDetails = (id) => {
-        navigate(`/recipes/${id}/details`); // Navigate to the RecipeDetail page
+        navigate(`/recipes/${id}/details`);
     };
 
     if (loading) {
-        return <div className="loading-message">Loading recipes...</div>; // Display loading message while fetching
+        return <div className="loading-message">Loading recipes...</div>;
     }
 
     return (
@@ -137,7 +139,7 @@ const RecipeList = () => {
                             <p><strong>Dietary Tags:</strong> {recipe.dietaryTags}</p>
                             <button
                                 className="view-details-button"
-                                onClick={() => handleViewDetails(recipe.id)} // Navigate to RecipeDetail
+                                onClick={() => handleViewDetails(recipe.id)}
                             >
                                 View Details
                             </button>
