@@ -10,8 +10,20 @@ const RecipeDetail = () => {
     const [newComment, setNewComment] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState(null); // State to store the logged-in user info
 
     useEffect(() => {
+        const fetchUserInfo = () => {
+            // Fetch user info from sessionStorage for testing
+            const storedUser = JSON.parse(sessionStorage.getItem('user'));
+            if (storedUser) {
+                setUser(storedUser);
+            } else {
+                setError('No user information available. Please log in.');
+                navigate('/login');
+            }
+        };
+
         const fetchRecipeDetails = async () => {
             try {
                 const response = await axios.get(`http://localhost:8080/recipes/${id}/details`, {
@@ -34,24 +46,48 @@ const RecipeDetail = () => {
             }
         };
 
+        fetchUserInfo();
         fetchRecipeDetails();
     }, [id, navigate]);
 
     const handleAddComment = async () => {
+        // Validate the new comment
+        if (!newComment.trim()) {
+            setError('Comment content cannot be empty.');
+            return;
+        }
+
         try {
+            if (!user) {
+                setError('You need to log in to add comments.');
+                navigate('/login');
+                return;
+            }
+
+            // Prepare the comment data
+            const commentData = {
+                content: newComment,
+            };
+
+            // Send POST request to add a new comment
             const response = await axios.post(
                 `http://localhost:8080/recipes/${id}/comments`,
-                { content: newComment },
+                commentData,
                 {
                     withCredentials: true, // Send session cookie
                 }
             );
 
-            setComments([...comments, response.data]);
-            setNewComment('');
+            // Add the new comment to the list of comments
+            setComments([...comments, response.data.comment]);
+            setNewComment(''); // Clear the input field after successful comment submission
         } catch (error) {
             console.error('Error adding comment:', error);
-            setError('Failed to add comment. Please try again later.');
+            if (error.response?.status === 403) {
+                setError('You do not have permission to add comments. Please log in.');
+            } else {
+                setError('Failed to add comment. Please try again later.');
+            }
         }
     };
 
@@ -60,6 +96,16 @@ const RecipeDetail = () => {
 
     return (
         <div className="recipe-detail-container">
+            {/* Display user info at the top for testing purposes */}
+            {user && (
+                <div className="user-info">
+                    <h3>User Info (for testing purposes):</h3>
+                    <p><strong>ID:</strong> {user.id}</p>
+                    <p><strong>Username:</strong> {user.username}</p>
+                    <p><strong>Email:</strong> {user.email}</p>
+                </div>
+            )}
+
             <h1>{recipe.title}</h1>
             <img
                 src={recipe.imageUrl || 'https://via.placeholder.com/600x400'}
