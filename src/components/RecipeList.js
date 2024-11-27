@@ -8,9 +8,8 @@ const RecipeList = () => {
     const [filteredRecipes, setFilteredRecipes] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [error, setError] = useState('');
-    const [loading, setLoading] = useState(true); // Loading state for fetching recipes
-    const [userId, setUserId] = useState(null); // Store the user's ID
-    const navigate = useNavigate(); // Initialize useNavigate
+    const [loading, setLoading] = useState(true); // Loading state
+    const navigate = useNavigate(); // For navigation
 
     useEffect(() => {
         const fetchRecipes = async () => {
@@ -22,12 +21,11 @@ const RecipeList = () => {
                     setLoading(false);
                     return;
                 }
-                setUserId(storedUser.id); // Set the logged-in user's ID
 
                 const response = await axios.get('http://localhost:8080/recipes/all', {
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${storedUser.token}`, // Example for token
+                        'Authorization': `Bearer ${storedUser.token}`,
                     },
                     withCredentials: true,
                 });
@@ -50,8 +48,8 @@ const RecipeList = () => {
         const filtered = recipes.filter((recipe) => {
             const titleMatch = recipe.title.toLowerCase().includes(query);
             const tagsMatch = Array.isArray(recipe.dietaryTags)
-                ? recipe.dietaryTags.some((tag) => tag.toLowerCase().includes(query)) // Handle dietaryTags as an array
-                : recipe.dietaryTags && recipe.dietaryTags.toLowerCase().includes(query); // Handle dietaryTags as a string
+                ? recipe.dietaryTags.some((tag) => tag.toLowerCase().includes(query))
+                : recipe.dietaryTags?.toLowerCase().includes(query);
             return titleMatch || tagsMatch;
         });
         setFilteredRecipes(filtered);
@@ -68,7 +66,7 @@ const RecipeList = () => {
             });
 
             setRecipes(recipes.filter((recipe) => recipe.id !== id));
-            setFilteredRecipes(filteredRecipes.filter((recipe) => recipe.id !== id)); // Update filtered recipes
+            setFilteredRecipes(filteredRecipes.filter((recipe) => recipe.id !== id));
             alert('Recipe deleted successfully!');
         } catch (error) {
             console.error('Error deleting recipe:', error);
@@ -85,9 +83,9 @@ const RecipeList = () => {
             }
 
             await axios.post(`http://localhost:8080/recipes/favorites/${storedUser.id}`, recipeId, {
-                headers: { 
-                    'Content-Type': 'application/json', 
-                    'Authorization': `Bearer ${storedUser.token}` 
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${storedUser.token}`,
                 },
             });
 
@@ -99,25 +97,29 @@ const RecipeList = () => {
     };
 
     const handleViewDetails = (id) => {
-        navigate(`/recipes/${id}/details`); // Navigate to the RecipeDetail page
+        navigate(`/recipes/${id}/details`); // Navigate to RecipeDetail page
     };
 
     if (loading) {
-        return <div className="loading-message">Loading recipes...</div>; // Display loading message while fetching
+        return <div className="loading-message">Loading recipes...</div>; // Display loading message
+    }
+
+    if (error) {
+        return <div className="error-message">{error}</div>; // Display error message
     }
 
     return (
         <div className="recipe-list-container">
             <h1 className="recipe-list-title">Recipes</h1>
-            {error && <p className="error-message">{error}</p>}
             <div className="search-bar">
                 <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search by title or dietary tags"
+                    className="search-input"
                 />
-                <button onClick={handleSearch}>Search</button>
+                <button onClick={handleSearch} className="search-button">Search</button>
             </div>
             {filteredRecipes.length > 0 ? (
                 <div className="recipe-grid">
@@ -131,25 +133,27 @@ const RecipeList = () => {
                             />
                             <p><strong>Ingredients:</strong> {recipe.ingredients}</p>
                             <p><strong>Instructions:</strong> {recipe.instructions}</p>
-                            <p><strong>Dietary Tags:</strong> {recipe.dietaryTags}</p>
-                            <button
-                                className="view-details-button"
-                                onClick={() => handleViewDetails(recipe.id)} // Navigate to RecipeDetail
-                            >
-                                View Details
-                            </button>
-                            <button
-                                onClick={() => handleDelete(recipe.id)}
-                                className="delete-button"
-                            >
-                                Delete
-                            </button>
-                            <button
-                                onClick={() => handleAddToFavorites(recipe.id)}
-                                className="favorite-button"
-                            >
-                                Add to Favorites
-                            </button>
+                            <p><strong>Dietary Tags:</strong> {recipe.dietaryTags?.join(', ') || 'None'}</p>
+                            <div className="recipe-actions">
+                                <button
+                                    onClick={() => handleViewDetails(recipe.id)}
+                                    className="view-details-button"
+                                >
+                                    View Details
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(recipe.id)}
+                                    className="delete-button"
+                                >
+                                    Delete
+                                </button>
+                                <button
+                                    onClick={() => handleAddToFavorites(recipe.id)}
+                                    className="favorite-button"
+                                >
+                                    Add to Favorites
+                                </button>
+                            </div>
                         </div>
                     ))}
                 </div>
