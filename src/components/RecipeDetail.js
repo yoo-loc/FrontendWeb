@@ -11,10 +11,11 @@ const RecipeDetail = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null); // State to store the logged-in user info
+    const [editingCommentId, setEditingCommentId] = useState(null); // Track the comment being edited
+    const [editedContent, setEditedContent] = useState(''); // Track the new content for editing
 
     useEffect(() => {
         const fetchUserInfo = () => {
-            // Fetch user info from sessionStorage for testing
             const storedUser = JSON.parse(sessionStorage.getItem('user'));
             if (storedUser) {
                 setUser(storedUser);
@@ -51,7 +52,6 @@ const RecipeDetail = () => {
     }, [id, navigate]);
 
     const handleAddComment = async () => {
-        // Validate the new comment
         if (!newComment.trim()) {
             setError('Comment content cannot be empty.');
             return;
@@ -64,12 +64,8 @@ const RecipeDetail = () => {
                 return;
             }
 
-            // Prepare the comment data
-            const commentData = {
-                content: newComment,
-            };
+            const commentData = { content: newComment };
 
-            // Send POST request to add a new comment
             const response = await axios.post(
                 `http://localhost:8080/recipes/${id}/comments`,
                 commentData,
@@ -78,9 +74,8 @@ const RecipeDetail = () => {
                 }
             );
 
-            // Add the new comment to the list of comments
             setComments([...comments, response.data.comment]);
-            setNewComment(''); // Clear the input field after successful comment submission
+            setNewComment('');
         } catch (error) {
             console.error('Error adding comment:', error);
             if (error.response?.status === 403) {
@@ -91,12 +86,55 @@ const RecipeDetail = () => {
         }
     };
 
+    const handleDeleteComment = async (commentId) => {
+        try {
+            await axios.delete(`http://localhost:8080/recipes/${id}/comments/${commentId}`, {
+                withCredentials: true, // Send session cookie
+            });
+
+            setComments(comments.filter((comment) => comment.id !== commentId));
+        } catch (error) {
+            console.error('Error deleting comment:', error);
+            setError('Failed to delete comment. Please try again later.');
+        }
+    };
+
+    const handleEditComment = (commentId, content) => {
+        setEditingCommentId(commentId);
+        setEditedContent(content);
+    };
+
+    const handleSaveEditedComment = async () => {
+        try {
+            const response = await axios.patch(
+                `http://localhost:8080/recipes/${id}/comments/${editingCommentId}`,
+                { content: editedContent },
+                {
+                    withCredentials: true, // Send session cookie
+                }
+            );
+
+            setComments(
+                comments.map((comment) =>
+                    comment.id === editingCommentId
+                        ? { ...comment, content: editedContent, editedAt: response.data.comment.editedAt }
+                        : comment
+                )
+            );
+
+            setEditingCommentId(null);
+            setEditedContent('');
+        } catch (error) {
+            console.error('Error editing comment:', error);
+            setError('Failed to edit comment. Please try again later.');
+        }
+    };
+
     if (loading) return <div>Loading recipe details...</div>;
     if (error) return <div>{error}</div>;
 
     return (
         <div className="recipe-detail-container">
-            {/* Display user info at the top for testing purposes */}
             {user && (
                 <div className="user-info">
                     <h3>User Info (for testing purposes):</h3>
@@ -120,12 +158,36 @@ const RecipeDetail = () => {
             <ul>
                 {comments.map((comment) => (
                     <li key={comment.id}>
-                        <p>
-                            <strong>{comment.username}:</strong> {comment.content}
-                        </p>
-                        <p className="comment-date">
-                            <em>Posted on: {new Date(comment.createdAt).toLocaleString()}</em>
-                        </p>
+                        {editingCommentId === comment.id ? (
+                            <div>
+                                <textarea
+                                    value={editedContent}
+                                    onChange={(e) => setEditedContent(e.target.value)}
+                                />
+                                <button onClick={handleSaveEditedComment}>Save</button>
+                                <button onClick={() => setEditingCommentId(null)}>Cancel</button>
+                            </div>
+                        ) : (
+                            <div>
+                                <p>
+                                    <strong>{comment.username}:</strong> {comment.content}
+                                </p>
+                                <p className="comment-date">
+                                    <em>Posted on: {new Date(comment.createdAt).toLocaleString()}</em>
+                                    {comment.editedAt && (
+                                        <span> (Last edited: {new Date(comment.editedAt).toLocaleString()})</span>
+                                    )}
+                                </p>
+                                {user && user.id === comment.userId && (
+                                    <div>
+                                        <button onClick={() => handleEditComment(comment.id, comment.content)}>
+                                            Edit
+                                        </button>
+                                        <button onClick={() => handleDeleteComment(comment.id)}>Delete</button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </li>
                 ))}
             </ul>
