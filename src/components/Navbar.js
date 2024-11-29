@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Navbar.css';
 
-const Navbar = ({ onLogout, isAuthenticated }) => {
+const Navbar = ({ isAuthenticated }) => {
     const [isDropdownOpen, setDropdownOpen] = useState(false);
 
     const toggleDropdown = () => setDropdownOpen(!isDropdownOpen);
@@ -18,33 +18,38 @@ const Navbar = ({ onLogout, isAuthenticated }) => {
 
                 {isDropdownOpen && (
                     <div className="dropdown">
-                        {/* Links for Fully Worked Routes */}
-                        <Link to="/dashboard" className="dropdown-link">Dashboard</Link>
-                        <Link to="/userFeed" className="dropdown-link">Feed</Link>
-                        <Link to="/favoriteRecipes" className="dropdown-link">Favorite Recipes</Link>
-                        <Link to="/recipes" className="dropdown-link">Recipes</Link>
-                        <Link to="/add-recipe" className="dropdown-link">Add Recipe</Link>
+                        {/* Public Links */}
+                        <Link to="/" className="dropdown-link">Home</Link>
+                        <Link to="/signup" className="dropdown-link">Signup</Link>
+                        <Link to="/login" className="dropdown-link">Login</Link>
 
-                        {/* Divider */}
+                        {/* Authenticated-Only Links */}
+                        {isAuthenticated && (
+                            <>
+                                <Link to="/dashboard" className="dropdown-link">Dashboard</Link>
+                                <Link to="/FavoriteRecipes" className="dropdown-link">Favorite Recipes</Link>
+                                <Link to="/recipes" className="dropdown-link">Recipes</Link>
+                                <Link to="/add-recipe" className="dropdown-link">Add Recipe</Link>
+                                <Link to="/discover" className="dropdown-link">Discover Recipes</Link>
+                                <Link to="/share" className="dropdown-link">Share Recipes</Link>
+                                <Link to="/cook-together" className="dropdown-link">Cook Together</Link>
+                                <Link to="/profile" className="dropdown-link">Profile</Link>
+                                
+                            </>
+                        )}
+
+                        {/* Logout Link */}
                         <div className="dropdown-divider"></div>
-
-                        {/* Unworked or Placeholder Links */}
-                        <div className="dropdown-unworked">
-                            <Link to="/profile" className="dropdown-link">Profile</Link>
-                            <Link to="/discover" className="dropdown-link">Discover Recipes</Link>
-                            <Link to="/share" className="dropdown-link">Share Recipes</Link>
-                            <Link to="/cook-together" className="dropdown-link">Cook Together</Link>
-                            <Link to="/logout" className="dropdown-link">Logout</Link>
-                            <Link to="/signup" className="dropdown-link">Sign Up</Link>
-                            <Link to="/login" className="dropdown-link">Login</Link>
-                        </div>
+                        <Link
+                            to="/logout"
+                            className="dropdown-link"
+                            onClick={() => setDropdownOpen(false)}
+                        >
+                            Logout
+                        </Link>
                     </div>
                 )}
             </div>
-
-            {isAuthenticated && (
-                <button onClick={onLogout} className="logout-button">Logout</button>
-            )}
         </nav>
     );
 };

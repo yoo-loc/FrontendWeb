@@ -8,125 +8,62 @@ const RecipeDetail = () => {
     const [recipe, setRecipe] = useState(null);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
+    const [isFavorite, setIsFavorite] = useState(false); // Track if the recipe is a favorite
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null); // State to store the logged-in user info
-    const [editingCommentId, setEditingCommentId] = useState(null); // Track the comment being edited
-    const [editedContent, setEditedContent] = useState(''); // Track the new content for editing
 
     useEffect(() => {
-        const fetchUserInfo = () => {
-            const storedUser = JSON.parse(sessionStorage.getItem('user'));
-            if (storedUser) {
-                setUser(storedUser);
-            } else {
-                setError('No user information available. Please log in.');
-                navigate('/login');
-            }
-        };
-
-        const fetchRecipeDetails = async () => {
+        const fetchRecipeData = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/recipes/${id}/details`, {
-                    withCredentials: true, // Send session cookie
-                });
+                // Fetch user info from session storage
+                const storedUser = JSON.parse(sessionStorage.getItem('user'));
+                if (!storedUser) {
+                    throw new Error('No user information available. Redirecting to login.');
+                }
+                setUser(storedUser);
 
-                setRecipe(response.data.recipe);
-                setComments(response.data.comments);
+                // Fetch data in parallel
+                const [recipeResponse, commentsResponse, favoritesResponse] = await Promise.all([
+                    axios.get(`http://localhost:8080/recipes/${id}`, { withCredentials: true }),
+                    axios.get(`http://localhost:8080/recipes/${id}/comments`, { withCredentials: true }),
+                    axios.get(`http://localhost:8080/recipes/favorites/${storedUser.id}`, { withCredentials: true }),
+                ]);
+
+                // Update state with fetched data
+                setRecipe(recipeResponse.data);
+                setComments(commentsResponse.data);
+                setIsFavorite(favoritesResponse.data.some((favId) => favId === id));
             } catch (error) {
-                console.error('Error fetching recipe details:', error);
+                console.error('Error fetching recipe data:', error);
                 if (error.response?.status === 401) {
-                    setError('Unauthorized access. Redirecting to login...');
-                    sessionStorage.clear(); // Clear session storage
-                    navigate('/login'); // Redirect to login page
+                    sessionStorage.clear();
+                    navigate('/login');
                 } else {
-                    setError(error.response?.data?.message || 'Failed to fetch recipe details. Please try again later.');
+                    setError(error.message || 'Failed to fetch recipe details. Please try again later.');
                 }
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchUserInfo();
-        fetchRecipeDetails();
+        fetchRecipeData();
     }, [id, navigate]);
 
-    const handleAddComment = async () => {
-        if (!newComment.trim()) {
-            setError('Comment content cannot be empty.');
-            return;
-        }
-
+    const handleToggleFavorite = async () => {
         try {
-            if (!user) {
-                setError('You need to log in to add comments.');
-                navigate('/login');
-                return;
-            }
-
-            const commentData = { content: newComment };
-
-            const response = await axios.post(
-                `http://localhost:8080/recipes/${id}/comments`,
-                commentData,
-                {
-                    withCredentials: true, // Send session cookie
-                }
-            );
-
-            setComments([...comments, response.data.comment]);
-            setNewComment('');
-        } catch (error) {
-            console.error('Error adding comment:', error);
-            if (error.response?.status === 403) {
-                setError('You do not have permission to add comments. Please log in.');
+            if (!isFavorite) {
+                // Add to favorites
+                await axios.post(`http://localhost:8080/recipes/${id}/favorites`, {}, { withCredentials: true });
+                setIsFavorite(true);
             } else {
-                setError('Failed to add comment. Please try again later.');
+                // Remove from favorites
+                await axios.delete(`http://localhost:8080/recipes/${id}/favorites`, { withCredentials: true });
+                setIsFavorite(false);
             }
-        }
-    };
-
-    const handleDeleteComment = async (commentId) => {
-        try {
-            await axios.delete(`http://localhost:8080/recipes/${id}/comments/${commentId}`, {
-                withCredentials: true, // Send session cookie
-            });
-
-            setComments(comments.filter((comment) => comment.id !== commentId));
         } catch (error) {
-            console.error('Error deleting comment:', error);
-            setError('Failed to delete comment. Please try again later.');
-        }
-    };
-
-    const handleEditComment = (commentId, content) => {
-        setEditingCommentId(commentId);
-        setEditedContent(content);
-    };
-
-    const handleSaveEditedComment = async () => {
-        try {
-            const response = await axios.patch(
-                `http://localhost:8080/recipes/${id}/comments/${editingCommentId}`,
-                { content: editedContent },
-                {
-                    withCredentials: true, // Send session cookie
-                }
-            );
-
-            setComments(
-                comments.map((comment) =>
-                    comment.id === editingCommentId
-                        ? { ...comment, content: editedContent, editedAt: response.data.comment.editedAt }
-                        : comment
-                )
-            );
-
-            setEditingCommentId(null);
-            setEditedContent('');
-        } catch (error) {
-            console.error('Error editing comment:', error);
-            setError('Failed to edit comment. Please try again later.');
+            console.error('Error toggling favorite:', error);
+            setError('Failed to update favorite status. Please try again later.');
         }
     };
 
@@ -154,40 +91,20 @@ const RecipeDetail = () => {
             <p><strong>Instructions:</strong> {recipe.instructions}</p>
             <p><strong>Dietary Tags:</strong> {recipe.dietaryTags?.join(', ') || 'None'}</p>
 
+            <button onClick={handleToggleFavorite}>
+                {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
+            </button>
+
             <h3>Comments</h3>
             <ul>
                 {comments.map((comment) => (
                     <li key={comment.id}>
-                        {editingCommentId === comment.id ? (
-                            <div>
-                                <textarea
-                                    value={editedContent}
-                                    onChange={(e) => setEditedContent(e.target.value)}
-                                />
-                                <button onClick={handleSaveEditedComment}>Save</button>
-                                <button onClick={() => setEditingCommentId(null)}>Cancel</button>
-                            </div>
-                        ) : (
-                            <div>
-                                <p>
-                                    <strong>{comment.username}:</strong> {comment.content}
-                                </p>
-                                <p className="comment-date">
-                                    <em>Posted on: {new Date(comment.createdAt).toLocaleString()}</em>
-                                    {comment.editedAt && (
-                                        <span> (Last edited: {new Date(comment.editedAt).toLocaleString()})</span>
-                                    )}
-                                </p>
-                                {user && user.id === comment.userId && (
-                                    <div>
-                                        <button onClick={() => handleEditComment(comment.id, comment.content)}>
-                                            Edit
-                                        </button>
-                                        <button onClick={() => handleDeleteComment(comment.id)}>Delete</button>
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                        <p>
+                            <strong>{comment.username}:</strong> {comment.content}
+                        </p>
+                        <p className="comment-date">
+                            <em>Posted on: {new Date(comment.createdAt).toLocaleString()}</em>
+                        </p>
                     </li>
                 ))}
             </ul>
@@ -197,7 +114,28 @@ const RecipeDetail = () => {
                 onChange={(e) => setNewComment(e.target.value)}
                 placeholder="Add a comment"
             />
-            <button onClick={handleAddComment}>Add Comment</button>
+            <button
+                onClick={async () => {
+                    if (newComment.trim()) {
+                        try {
+                            const response = await axios.post(
+                                `http://localhost:8080/recipes/${id}/comments`,
+                                { content: newComment },
+                                { withCredentials: true }
+                            );
+                            setComments([...comments, response.data.comment]);
+                            setNewComment('');
+                        } catch (error) {
+                            console.error('Error adding comment:', error);
+                            setError('Failed to add comment. Please try again later.');
+                        }
+                    } else {
+                        setError('Comment content cannot be empty.');
+                    }
+                }}
+            >
+                Add Comment
+            </button>
         </div>
     );
 };
