@@ -12,6 +12,8 @@ const RecipeDetail = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null); // State to store the logged-in user info
+    const [editingComment, setEditingComment] = useState(null); // Comment being edited
+    const [editedContent, setEditedContent] = useState(''); // Edited comment content
 
     useEffect(() => {
         const fetchRecipeData = async () => {
@@ -67,6 +69,68 @@ const RecipeDetail = () => {
         }
     };
 
+    const handleAddComment = async () => {
+        if (newComment.trim()) {
+            try {
+                const response = await axios.post(
+                    `http://localhost:8080/recipes/${id}/comments`,
+                    { content: newComment },
+                    { withCredentials: true }
+                );
+                setComments([...comments, response.data.comment]);
+                setNewComment('');
+            } catch (error) {
+                console.error('Error adding comment:', error);
+                setError('Failed to add comment. Please try again later.');
+            }
+        } else {
+            setError('Comment content cannot be empty.');
+        }
+    };
+
+    const handleDeleteComment = async (commentId) => {
+        try {
+            await axios.delete(`http://localhost:8080/recipes/${id}/comments/${commentId}`, {
+                withCredentials: true,
+            });
+            setComments(comments.filter((comment) => comment.id !== commentId));
+        } catch (error) {
+            console.error('Error deleting comment:', error);
+            setError('Failed to delete comment. Please try again later.');
+        }
+    };
+
+    const handleEditComment = (commentId, content) => {
+        setEditingComment(commentId);
+        setEditedContent(content);
+    };
+
+    const handleSaveEditedComment = async () => {
+        if (!editedContent.trim()) {
+            setError('Comment content cannot be empty.');
+            return;
+        }
+        try {
+            await axios.patch(
+                `http://localhost:8080/recipes/${id}/comments/${editingComment}`,
+                { content: editedContent },
+                { withCredentials: true }
+            );
+            setComments(
+                comments.map((comment) =>
+                    comment.id === editingComment
+                        ? { ...comment, content: editedContent, editedAt: new Date().toISOString() }
+                        : comment
+                )
+            );
+            setEditingComment(null);
+            setEditedContent('');
+        } catch (error) {
+            console.error('Error editing comment:', error);
+            setError('Failed to edit comment. Please try again later.');
+        }
+    };
+
     if (loading) return <div>Loading recipe details...</div>;
     if (error) return <div>{error}</div>;
 
@@ -99,12 +163,36 @@ const RecipeDetail = () => {
             <ul>
                 {comments.map((comment) => (
                     <li key={comment.id}>
-                        <p>
-                            <strong>{comment.username}:</strong> {comment.content}
-                        </p>
-                        <p className="comment-date">
-                            <em>Posted on: {new Date(comment.createdAt).toLocaleString()}</em>
-                        </p>
+                        {editingComment === comment.id ? (
+                            <div>
+                                <textarea
+                                    value={editedContent}
+                                    onChange={(e) => setEditedContent(e.target.value)}
+                                />
+                                <button onClick={handleSaveEditedComment}>Save</button>
+                                <button onClick={() => setEditingComment(null)}>Cancel</button>
+                            </div>
+                        ) : (
+                            <div>
+                                <p>
+                                    <strong>{comment.username}:</strong> {comment.content}
+                                </p>
+                                <p className="comment-date">
+                                    <em>Posted on: {new Date(comment.createdAt).toLocaleString()}</em>
+                                    {comment.editedAt && (
+                                        <span> (Last edited: {new Date(comment.editedAt).toLocaleString()})</span>
+                                    )}
+                                </p>
+                                {user && user.id === comment.userId && (
+                                    <div>
+                                        <button onClick={() => handleEditComment(comment.id, comment.content)}>
+                                            Edit
+                                        </button>
+                                        <button onClick={() => handleDeleteComment(comment.id)}>Delete</button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </li>
                 ))}
             </ul>
@@ -114,28 +202,7 @@ const RecipeDetail = () => {
                 onChange={(e) => setNewComment(e.target.value)}
                 placeholder="Add a comment"
             />
-            <button
-                onClick={async () => {
-                    if (newComment.trim()) {
-                        try {
-                            const response = await axios.post(
-                                `http://localhost:8080/recipes/${id}/comments`,
-                                { content: newComment },
-                                { withCredentials: true }
-                            );
-                            setComments([...comments, response.data.comment]);
-                            setNewComment('');
-                        } catch (error) {
-                            console.error('Error adding comment:', error);
-                            setError('Failed to add comment. Please try again later.');
-                        }
-                    } else {
-                        setError('Comment content cannot be empty.');
-                    }
-                }}
-            >
-                Add Comment
-            </button>
+            <button onClick={handleAddComment}>Add Comment</button>
         </div>
     );
 };

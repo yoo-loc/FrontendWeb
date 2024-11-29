@@ -1,10 +1,7 @@
-// src/components/AddRecipe.js
 import './RecipeForm.css';
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-// import 'bootstrap/dist/css/bootstrap.min.css';
 
 const AddRecipe = () => {
     const [name, setName] = useState("");
@@ -15,25 +12,43 @@ const AddRecipe = () => {
     const navigate = useNavigate();
 
     // Handle form submission
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Get the current time
+        const creationTime = new Date().toISOString();
 
         const newRecipe = {
             name,
             description,
             category,
             image,
-            steps: steps.split("\n").filter(step => step.trim() !== "") // Split steps by new line and remove any empty lines
+            steps: steps.split("\n").filter(step => step.trim() !== ""), // Split steps by new line and remove any empty lines
+            createdAt: creationTime // Include the creation time
         };
 
-        addRecipe(newRecipe).then(() => {
-            navigate("/recipes"); // Redirect to the recipe list after adding
-        });
+        try {
+            // Send the new recipe to the backend
+            await fetch("http://localhost:8080/recipes", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(newRecipe),
+                credentials: "include" // Include session credentials if required
+            });
+
+            // Redirect to the recipe list after adding
+            navigate("/recipes");
+        } catch (error) {
+            console.error("Error adding recipe:", error);
+            alert("Failed to add recipe. Please try again.");
+        }
     };
 
     return (
         <div>
-            <h2>Add New Recipe dfsdfsdf</h2>
+            <h2>Add New Recipe</h2>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <label>
                     Name:
@@ -62,7 +77,7 @@ const AddRecipe = () => {
                         required
                     />
                 </label>
-                { <label>
+                <label>
                     Image (URL or local path):
                     <input
                         type="text"
@@ -70,7 +85,7 @@ const AddRecipe = () => {
                         onChange={(e) => setImage(e.target.value)}
                         placeholder="https://example.com/image.jpg or local path"
                     />
-                </label> }
+                </label>
                 <label>
                     Steps (each step on a new line):
                     <textarea
