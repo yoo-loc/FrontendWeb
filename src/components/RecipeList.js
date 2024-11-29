@@ -14,18 +14,9 @@ const RecipeList = () => {
     useEffect(() => {
         const fetchRecipes = async () => {
             try {
-                const storedUser = JSON.parse(sessionStorage.getItem('user'));
-                if (!storedUser) {
-                    console.error('User is not authenticated.');
-                    setError('You need to log in to view recipes.');
-                    setLoading(false);
-                    return;
-                }
-
                 const response = await axios.get('http://localhost:8080/recipes/all', {
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${storedUser.token}`,
                     },
                     withCredentials: true,
                 });
@@ -59,12 +50,11 @@ const RecipeList = () => {
 
     const handleDelete = async (id) => {
         try {
-            const storedUser = JSON.parse(sessionStorage.getItem('user'));
             await axios.delete(`http://localhost:8080/recipes/${id}`, {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${storedUser.token}`,
                 },
+                withCredentials: true,
             });
 
             // Update recipes after deletion
