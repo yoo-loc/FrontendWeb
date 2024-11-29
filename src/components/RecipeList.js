@@ -30,8 +30,10 @@ const RecipeList = () => {
                     withCredentials: true,
                 });
 
-                setRecipes(response.data);
-                setFilteredRecipes(response.data); // Initialize filtered recipes
+                // Sort recipes by `createdAt` in descending order
+                const sortedRecipes = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                setRecipes(sortedRecipes);
+                setFilteredRecipes(sortedRecipes); // Initialize filtered recipes
             } catch (error) {
                 console.error('Error fetching recipes:', error);
                 setError('Failed to fetch recipes. Please try again later.');
@@ -65,34 +67,13 @@ const RecipeList = () => {
                 },
             });
 
+            // Update recipes after deletion
             setRecipes(recipes.filter((recipe) => recipe.id !== id));
             setFilteredRecipes(filteredRecipes.filter((recipe) => recipe.id !== id));
             alert('Recipe deleted successfully!');
         } catch (error) {
             console.error('Error deleting recipe:', error);
             setError('Failed to delete the recipe. Please try again.');
-        }
-    };
-
-    const handleAddToFavorites = async (recipeId) => {
-        try {
-            const storedUser = JSON.parse(sessionStorage.getItem('user'));
-            if (!storedUser) {
-                setError('You need to log in to add favorites.');
-                return;
-            }
-
-            await axios.post(`http://localhost:8080/recipes/favorites/${storedUser.id}`, recipeId, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${storedUser.token}`,
-                },
-            });
-
-            alert('Recipe added to favorites!');
-        } catch (error) {
-            console.error('Error adding to favorites:', error);
-            setError('Failed to add the recipe to favorites. Please try again.');
         }
     };
 
@@ -134,6 +115,7 @@ const RecipeList = () => {
                             <p><strong>Ingredients:</strong> {recipe.ingredients}</p>
                             <p><strong>Instructions:</strong> {recipe.instructions}</p>
                             <p><strong>Dietary Tags:</strong> {recipe.dietaryTags?.join(', ') || 'None'}</p>
+                            <p><strong>Posted At:</strong> {new Date(recipe.createdAt).toLocaleString()}</p>
                             <div className="recipe-actions">
                                 <button
                                     onClick={() => handleViewDetails(recipe.id)}
@@ -146,12 +128,6 @@ const RecipeList = () => {
                                     className="delete-button"
                                 >
                                     Delete
-                                </button>
-                                <button
-                                    onClick={() => handleAddToFavorites(recipe.id)}
-                                    className="favorite-button"
-                                >
-                                    Add to Favorites
                                 </button>
                             </div>
                         </div>
