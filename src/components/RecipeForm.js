@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import './RecipeForm.css';
 
 const RecipeForm = () => {
     const [formData, setFormData] = useState({
@@ -8,55 +7,84 @@ const RecipeForm = () => {
         ingredients: '',
         instructions: '',
         dietaryTags: '',
-        url: '',        
-        imageUrl: ''    
+        imageUrl: ''
     });
-    const [message, setMessage] = useState('');  // State for success/failure message
-    const [showPopup, setShowPopup] = useState(false); // State for popup visibility
-    const [loading, setLoading] = useState(false); // Loading state for the button
 
+    const [message, setMessage] = useState(''); // Success or error message
+    const [showPopup, setShowPopup] = useState(false); // Popup visibility
+    const [loading, setLoading] = useState(false); // Loading state for the submit button
+
+    // Handle form input changes
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    // Parse dietary tags into a list
+    const parseDietaryTags = (tags) => {
+        return tags.split(',').map((tag) => tag.trim()).filter((tag) => tag !== '');
+    };
+
+    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);  // Set loading state when submitting
+        setLoading(true);
         setMessage('');
-        setShowPopup(false);  // Hide any previous popup
-
+        setShowPopup(false);
+    
         try {
-            const response = await axios.post('http://localhost:8080/recipes/post', formData);
+            // Parse dietaryTags into an array
+            const dataToSubmit = {
+                ...formData,
+                dietaryTags: parseDietaryTags(formData.dietaryTags)
+            };
+    
+            // POST request to backend with session credentials
+            const response = await axios.post('http://localhost:8080/recipes', dataToSubmit, {
+                withCredentials: true, // Include cookies for session-based authentication
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+    
             console.log('Recipe submitted:', response.data);
-            setMessage('Post added successfully!');
+            setMessage('Recipe added successfully!');
             setShowPopup(true);
-
+    
             // Reset form fields
             setFormData({
                 title: '',
                 ingredients: '',
                 instructions: '',
                 dietaryTags: '',
-                url: '',        
-                imageUrl: ''    
+                imageUrl: ''
             });
-
-            // Hide the popup after 3 seconds
+    
+            // Hide popup after 3 seconds
             setTimeout(() => {
                 setShowPopup(false);
             }, 3000);
         } catch (error) {
             console.error('Error submitting recipe:', error);
-            setMessage('Failed to submit recipe.');
+    
+            // Error handling with detailed messages
+            if (error.response) {
+                setMessage(`Error: ${error.response.data.message || 'Failed to submit recipe.'}`);
+            } else if (error.request) {
+                setMessage('Error: No response from server.');
+            } else {
+                setMessage('Unexpected error occurred.');
+            }
+    
             setShowPopup(true);
         } finally {
-            setLoading(false); // Set loading state to false after request finishes
+            setLoading(false);
         }
     };
+    
 
     return (
         <div>
-            <form className="recipe-form" onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit}>
                 <input
                     type="text"
                     name="title"
@@ -64,7 +92,6 @@ const RecipeForm = () => {
                     value={formData.title}
                     onChange={handleChange}
                     required
-                    className="form-input"
                 />
                 <textarea
                     name="ingredients"
@@ -72,7 +99,6 @@ const RecipeForm = () => {
                     value={formData.ingredients}
                     onChange={handleChange}
                     required
-                    className="form-textarea"
                 />
                 <textarea
                     name="instructions"
@@ -80,15 +106,13 @@ const RecipeForm = () => {
                     value={formData.instructions}
                     onChange={handleChange}
                     required
-                    className="form-textarea"
                 />
                 <input
                     type="text"
                     name="dietaryTags"
-                    placeholder="Dietary Tags"
+                    placeholder="Dietary Tags (comma-separated)"
                     value={formData.dietaryTags}
                     onChange={handleChange}
-                    className="form-input"
                 />
                 <input
                     type="url"
@@ -96,20 +120,15 @@ const RecipeForm = () => {
                     placeholder="Image URL"
                     value={formData.imageUrl}
                     onChange={handleChange}
-                    className="form-input"
                 />
-                <button 
-                    type="submit" 
-                    className="form-button" 
-                    disabled={loading}  // Disable the button if loading
-                >
+                <button type="submit" disabled={loading}>
                     {loading ? 'Submitting...' : 'Submit Recipe'}
                 </button>
             </form>
 
             {/* Popup for success/failure message */}
             {showPopup && (
-                <div className="popup">
+                <div>
                     <p>{message}</p>
                 </div>
             )}
