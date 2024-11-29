@@ -1,45 +1,70 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login } from '../services/dataService';
-import './Login.css';
 
-const Signup = () => {
-    const [formData, setFormData] = useState({ username: '', password: '' });
+
+const SignUp = () => {
+    const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+    const [message, setMessage] = useState({ type: '', text: '' }); // For success or error messages
     const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        login(formData).then((response) => {
-            if (response.status === 200) {
-                navigate('/profile');
-            }
-        }).catch((error) => {
-            console.error("Signup failed:", error);
-        });
-    };
+        setMessage({ type: '', text: '' }); // Clear previous messages
 
-    const handleGoogleLogin = () => {
-        window.location.href = "http://localhost:8080/api/auth/google";
+        try {
+            const response = await fetch('http://localhost:8080/api/auth/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+            });
+
+            let data = null;
+
+            // Handle potential empty or malformed JSON responses
+            try {
+                data = await response.json();
+            } catch {
+                data = { message: 'Unexpected error. Please try again.' };
+            }
+
+            if (response.ok) {
+                setMessage({ type: 'success', text: data.message });
+                setTimeout(() => navigate('/login'), 2000); // Redirect to login after 2 seconds
+            } else {
+                setMessage({ type: 'error', text: data.message || 'Sign-up failed' });
+            }
+        } catch (err) {
+            console.error('Sign-up error:', err);
+            setMessage({ type: 'error', text: 'An error occurred. Please try again.' });
+        }
     };
 
     return (
-        <div className="login-page">
+        <div className="signup-page">
             <h2>Create an Account</h2>
-            <div className="login-buttons">
-                <button onClick={handleGoogleLogin}>Continue with Google</button>
-            </div>
-            <div className="separator">or</div>
+            {message.text && (
+                <p className={message.type === 'success' ? 'success-message' : 'error-message'}>
+                    {message.text}
+                </p>
+            )}
             <form className="form" onSubmit={handleSubmit}>
                 <input
                     type="text"
-                    name="username"
-                    placeholder="Username or email"
-                    value={formData.username}
+                    name="name"
+                    placeholder="Name"
+                    value={formData.name}
+                    onChange={handleChange}
+                />
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    value={formData.email}
                     onChange={handleChange}
                 />
                 <input
@@ -49,11 +74,13 @@ const Signup = () => {
                     value={formData.password}
                     onChange={handleChange}
                 />
-                <button type="submit">Sign up</button>
+                <button type="submit">Sign Up</button>
             </form>
-            <p className="signup-text">Already have an account? <a href="/login">Log in here.</a></p>
+            <p className="login-text">
+                Already have an account? <a href="/login">Log in</a>.
+            </p>
         </div>
     );
 };
 
-export default Signup;
+export default SignUp;
