@@ -9,6 +9,7 @@ const RecipeDetail = () => {
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [isFavorite, setIsFavorite] = useState(false); // Track if the recipe is a favorite
+    const [favoritesCount, setFavoritesCount] = useState(0); // Track the number of favorites
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null); // State to store the logged-in user info
@@ -25,17 +26,18 @@ const RecipeDetail = () => {
                 }
                 setUser(storedUser);
 
-                // Fetch data in parallel
-                const [recipeResponse, commentsResponse, favoritesResponse] = await Promise.all([
+                // Fetch recipe, comments, and favorites data
+                const [recipeResponse, commentsResponse] = await Promise.all([
                     axios.get(`http://localhost:8080/recipes/${id}`, { withCredentials: true }),
                     axios.get(`http://localhost:8080/recipes/${id}/comments`, { withCredentials: true }),
-                    axios.get(`http://localhost:8080/recipes/favorites/${storedUser.id}`, { withCredentials: true }),
                 ]);
 
                 // Update state with fetched data
-                setRecipe(recipeResponse.data);
+                const recipeData = recipeResponse.data;
+                setRecipe(recipeData);
                 setComments(commentsResponse.data);
-                setIsFavorite(favoritesResponse.data.some((favId) => favId === id));
+                setIsFavorite(storedUser.favorites?.includes(id) || false);
+                setFavoritesCount(recipeData.favoritesCount || 0); // Set the initial favorites count
             } catch (error) {
                 console.error('Error fetching recipe data:', error);
                 if (error.response?.status === 401) {
@@ -58,10 +60,12 @@ const RecipeDetail = () => {
                 // Add to favorites
                 await axios.post(`http://localhost:8080/recipes/${id}/favorites`, {}, { withCredentials: true });
                 setIsFavorite(true);
+                setFavoritesCount((prevCount) => prevCount + 1); // Increment favorites count
             } else {
                 // Remove from favorites
                 await axios.delete(`http://localhost:8080/recipes/${id}/favorites`, { withCredentials: true });
                 setIsFavorite(false);
+                setFavoritesCount((prevCount) => prevCount - 1); // Decrement favorites count
             }
         } catch (error) {
             console.error('Error toggling favorite:', error);
@@ -154,6 +158,7 @@ const RecipeDetail = () => {
             <p><strong>Ingredients:</strong> {recipe.ingredients}</p>
             <p><strong>Instructions:</strong> {recipe.instructions}</p>
             <p><strong>Dietary Tags:</strong> {recipe.dietaryTags?.join(', ') || 'None'}</p>
+            <p><strong>Favorites:</strong> {favoritesCount}</p> {/* Display favorites count */}
 
             <button onClick={handleToggleFavorite}>
                 {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
