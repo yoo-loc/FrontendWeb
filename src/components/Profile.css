@@ -2,6 +2,7 @@
 .profile-container {
     display: flex;
     min-height: 100vh;
+    font-family: Arial, sans-serif;
 }
 
 .profile-sidebar {
@@ -12,9 +13,10 @@
     flex-direction: column;
     align-items: flex-start;
     border-right: 1px solid #ddd;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
-.logout-button {
+.logout-button, .edit-button {
     background-color: #ff4d4d;
     color: white;
     border: none;
@@ -25,10 +27,19 @@
     text-align: center;
     border-radius: 5px;
     font-size: 16px;
+    transition: background-color 0.3s ease;
 }
 
-.logout-button:hover {
+.logout-button:hover, .edit-button:hover {
     background-color: #ff3333;
+}
+
+.edit-button {
+    background-color: #007bff;
+}
+
+.edit-button:hover {
+    background-color: #0056b3;
 }
 
 .profile-content {
@@ -39,4 +50,82 @@
 .profile-content img {
     max-width: 150px;
     border-radius: 50%;
+    margin-bottom: 20px;
+    border: 2px solid #ddd;
+}
+
+.profile-info, .edit-profile-form {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.edit-profile-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.edit-profile-form input {
+    width: calc(100% - 10px);
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.edit-profile-form button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.edit-profile-form button:hover {
+    background-color: #0056b3;
+}
+
+.error-message {
+    color: #ff4d4d;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.success-message {
+    color: #28a745;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.profile-info ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.profile-info li {
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.profile-info li strong {
+    font-size: 16px;
+}
+
+.profile-info li p {
+    margin: 5px 0 0;
+    font-size: 14px;
+    color: #666;
 }
