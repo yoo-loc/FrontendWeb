@@ -34,7 +34,7 @@ const RecipeDetail = () => {
 
                 setRecipe(recipeResponse.data);
                 setComments(commentsResponse.data);
-                setIsFavorite(favoritesResponse.data.some((favId) => favId === id));
+                setIsFavorite(favoritesResponse.data.some((fav) => fav.id === id));
             } catch (error) {
                 console.error('Error fetching recipe data:', error);
                 if (error.response?.status === 401) {
@@ -109,7 +109,7 @@ const RecipeDetail = () => {
                     { content: newComment },
                     { withCredentials: true }
                 );
-                setComments([...comments, response.data.comment]);
+                setComments((prev) => [...prev, response.data]);
                 setNewComment('');
             } catch (error) {
                 console.error('Error adding comment:', error);
@@ -125,7 +125,7 @@ const RecipeDetail = () => {
             await axios.delete(`http://localhost:8080/recipes/${id}/comments/${commentId}`, {
                 withCredentials: true,
             });
-            setComments(comments.filter((comment) => comment.id !== commentId));
+            setComments((prev) => prev.filter((comment) => comment.id !== commentId));
         } catch (error) {
             console.error('Error deleting comment:', error);
             setError('Failed to delete comment. Please try again later.');
@@ -148,8 +148,8 @@ const RecipeDetail = () => {
                 { content: editedCommentContent },
                 { withCredentials: true }
             );
-            setComments(
-                comments.map((comment) =>
+            setComments((prev) =>
+                prev.map((comment) =>
                     comment.id === editingCommentId
                         ? { ...comment, content: editedCommentContent, editedAt: new Date().toISOString() }
                         : comment
