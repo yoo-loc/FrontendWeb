@@ -1,196 +1,290 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const Profile = () => {
+const RecipeDetail = () => {
+    const { id } = useParams();
     const navigate = useNavigate();
-    const [user, setUser] = useState(null);
-    const [isEditing, setIsEditing] = useState(false);
-    const [formData, setFormData] = useState({ username: '', email: '', password: '' });
+    const [recipe, setRecipe] = useState(null);
+    const [isEditingRecipe, setIsEditingRecipe] = useState(false);
+    const [updatedRecipe, setUpdatedRecipe] = useState({});
+    const [comments, setComments] = useState([]);
+    const [newComment, setNewComment] = useState('');
+    const [editingCommentId, setEditingCommentId] = useState(null);
+    const [editedCommentContent, setEditedCommentContent] = useState('');
+    const [isFavorite, setIsFavorite] = useState(false);
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
-        const fetchUserData = async () => {
+        const fetchRecipeData = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/api/users/session', {
-                    withCredentials: true,
-                });
-                setUser(response.data);
-                setFormData({
-                    username: response.data.username,
-                    email: response.data.email,
-                    password: '',
-                });
+                const storedUser = JSON.parse(sessionStorage.getItem('user'));
+                if (!storedUser) {
+                    throw new Error('No user information available. Redirecting to login.');
+                }
+                setUser(storedUser);
+
+                const [recipeResponse, commentsResponse, favoritesResponse] = await Promise.all([
+                    axios.get(`http://localhost:8080/recipes/${id}`, { withCredentials: true }),
+                    axios.get(`http://localhost:8080/recipes/${id}/comments`, { withCredentials: true }),
+                    axios.get(`http://localhost:8080/recipes/favorites/${storedUser.id}`, { withCredentials: true }),
+                ]);
+
+                setRecipe(recipeResponse.data);
+                setComments(commentsResponse.data);
+                setIsFavorite(favoritesResponse.data.some((fav) => fav.id === id));
             } catch (error) {
-                console.error('Error fetching user data:', error);
-                setError('Failed to load user profile. Please log in again.');
+                console.error('Error fetching recipe data:', error);
+                if (error.response?.status === 401) {
+                    sessionStorage.clear();
+                    navigate('/login');
+                } else {
+                    setError(error.message || 'Failed to fetch recipe details. Please try again later.');
+                }
+            } finally {
+                setLoading(false);
             }
         };
 
-        fetchUserData();
-    }, []);
+        fetchRecipeData();
+    }, [id, navigate]);
+
+    const handleEditRecipe = async () => {
+        try {
+            await axios.patch(`http://localhost:8080/recipes/${id}`, updatedRecipe, { withCredentials: true });
+            setRecipe({ ...recipe, ...updatedRecipe });
+            setIsEditingRecipe(false);
+            setError('');
+        } catch (error) {
+            console.error('Error updating recipe:', error);
+            setError('Failed to update the recipe. Please try again later.');
+        }
+    };
+
+    const handleDeleteRecipe = async () => {
+        try {
+            await axios.delete(`http://localhost:8080/recipes/${id}`, { withCredentials: true });
+            navigate('/recipes'); // Redirect to the recipes list after deletion
+        } catch (error) {
+            console.error('Error deleting recipe:', error);
+            setError('Failed to delete the recipe. Please try again later.');
+        }
+    };
+
+    const handleToggleFavorite = async () => {
+        try {
+            if (!isFavorite) {
+                const response = await axios.post(`http://localhost:8080/recipes/${id}/favorites`, {}, { withCredentials: true });
+                setIsFavorite(true);
+                setRecipe((prev) => ({
+                    ...prev,
+                    favoritesCount: response.data.favoritesCount,
+                }));
+            } else {
+                const response = await axios.delete(`http://localhost:8080/recipes/${id}/favorites`, { withCredentials: true });
+                setIsFavorite(false);
+                setRecipe((prev) => ({
+                    ...prev,
+                    favoritesCount: response.data.favoritesCount,
+                }));
+            }
+        } catch (error) {
+            console.error('Error toggling favorite:', error);
+            setError('Failed to update favorite status. Please try again later.');
+        }
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        setUpdatedRecipe((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleEditToggle = () => {
-        setIsEditing((prev) => !prev);
-        setSuccess('');
-        setError('');
+    const handleAddComment = async () => {
+        if (newComment.trim()) {
+            try {
+                const response = await axios.post(
+                    `http://localhost:8080/recipes/${id}/comments`,
+                    { content: newComment },
+                    { withCredentials: true }
+                );
+                setComments((prev) => [...prev, response.data]);
+                setNewComment('');
+            } catch (error) {
+                console.error('Error adding comment:', error);
+                setError('Failed to add comment. Please try again later.');
+            }
+        } else {
+            setError('Comment content cannot be empty.');
+        }
     };
 
-    const handleUpdateUser = async () => {
+    const handleDeleteComment = async (commentId) => {
         try {
-            const response = await axios.put(
-                `http://localhost:8080/api/users/${user.id}/update-info`,
-                formData,
+            await axios.delete(`http://localhost:8080/recipes/${id}/comments/${commentId}`, {
+                withCredentials: true,
+            });
+            setComments((prev) => prev.filter((comment) => comment.id !== commentId));
+        } catch (error) {
+            console.error('Error deleting comment:', error);
+            setError('Failed to delete comment. Please try again later.');
+        }
+    };
+
+    const handleEditComment = (commentId, content) => {
+        setEditingCommentId(commentId);
+        setEditedCommentContent(content);
+    };
+
+    const handleSaveEditedComment = async () => {
+        if (!editedCommentContent.trim()) {
+            setError('Comment content cannot be empty.');
+            return;
+        }
+        try {
+            await axios.patch(
+                `http://localhost:8080/recipes/${id}/comments/${editingCommentId}`,
+                { content: editedCommentContent },
                 { withCredentials: true }
             );
-            setSuccess(response.data.message);
-            setUser((prev) => ({
-                ...prev,
-                username: formData.username,
-                email: formData.email,
-            }));
-            setIsEditing(false);
-        } catch (error) {
-            console.error('Error updating user info:', error);
-            setError(
-                error.response?.data?.message || 'Failed to update user information. Please try again later.'
+            setComments((prev) =>
+                prev.map((comment) =>
+                    comment.id === editingCommentId
+                        ? { ...comment, content: editedCommentContent, editedAt: new Date().toISOString() }
+                        : comment
+                )
             );
-        }
-    };
-
-    const handleLogout = async () => {
-        try {
-            await axios.post('http://localhost:8080/api/auth/logout', {}, { withCredentials: true });
-            sessionStorage.clear();
-            navigate('/');
+            setEditingCommentId(null);
+            setEditedCommentContent('');
         } catch (error) {
-            console.error('Error logging out:', error);
-            setError('Failed to log out. Please try again.');
+            console.error('Error editing comment:', error);
+            setError('Failed to edit comment. Please try again later.');
         }
     };
 
-    if (!user) {
-        return <div>Loading profile...</div>;
-    }
+    if (loading) return <div>Loading recipe details...</div>;
+    if (error) return <div>{error}</div>;
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', padding: '20px' }}>
-            <div style={{ marginBottom: '20px' }}>
-                <button
-                    onClick={handleLogout}
-                    style={{
-                        padding: '10px 20px',
-                        fontSize: '16px',
-                        marginRight: '10px',
-                        cursor: 'pointer',
-                    }}
-                >
-                    Logout
-                </button>
-                <button
-                    onClick={handleEditToggle}
-                    style={{
-                        padding: '10px 20px',
-                        fontSize: '16px',
-                        cursor: 'pointer',
-                    }}
-                >
-                    {isEditing ? 'Cancel' : 'Edit Profile'}
-                </button>
-            </div>
-            <div>
-                <h2>Welcome, {user.username}</h2>
-                {isEditing ? (
-                    <div style={{ maxWidth: '400px', margin: '0 auto' }}>
-                        {error && (
-                            <div style={{ color: 'red', marginBottom: '10px' }}>{error}</div>
-                        )}
-                        {success && (
-                            <div style={{ color: 'green', marginBottom: '10px' }}>{success}</div>
-                        )}
-                        <div style={{ marginBottom: '10px' }}>
-                            <label htmlFor="username" style={{ display: 'block', marginBottom: '5px' }}>
-                                Username:
-                            </label>
-                            <input
-                                type="text"
-                                id="username"
-                                name="username"
-                                value={formData.username}
-                                onChange={handleInputChange}
-                                style={{ width: '100%', padding: '8px' }}
-                            />
-                        </div>
-                        <div style={{ marginBottom: '10px' }}>
-                            <label htmlFor="email" style={{ display: 'block', marginBottom: '5px' }}>
-                                Email:
-                            </label>
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleInputChange}
-                                style={{ width: '100%', padding: '8px' }}
-                            />
-                        </div>
-                        <div style={{ marginBottom: '10px' }}>
-                            <label htmlFor="password" style={{ display: 'block', marginBottom: '5px' }}>
-                                Password:
-                            </label>
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                value={formData.password}
-                                onChange={handleInputChange}
-                                style={{ width: '100%', padding: '8px' }}
-                            />
-                        </div>
-                        <button
-                            onClick={handleUpdateUser}
-                            style={{
-                                padding: '10px 20px',
-                                fontSize: '16px',
-                                cursor: 'pointer',
-                                backgroundColor: '#007bff',
-                                color: '#fff',
-                                border: 'none',
-                                borderRadius: '5px',
-                            }}
-                        >
-                            Save Changes
-                        </button>
-                    </div>
-                ) : (
-                    <div>
-                        <p>
-                            <strong>Email:</strong> {user.email}
-                        </p>
-                        <h3>Favorites:</h3>
-                        {user.favorites && user.favorites.length > 0 ? (
-                            <ul>
-                                {user.favorites.map((recipe) => (
-                                    <li key={recipe.id}>
-                                        <strong>{recipe.title}</strong>
-                                        <p>{recipe.description}</p>
-                                    </li>
-                                ))}
-                            </ul>
+        <div className="recipe-detail-container">
+            {user && (
+                <div className="user-info">
+                    <h3>User Info:</h3>
+                    <p><strong>ID:</strong> {user.id}</p>
+                    <p><strong>Username:</strong> {user.username}</p>
+                </div>
+            )}
+
+            {!isEditingRecipe ? (
+                <div>
+                    <h1>{recipe.title}</h1>
+                    <img
+                        src={recipe.imageUrl || 'https://via.placeholder.com/600x400'}
+                        alt={recipe.title}
+                        className="recipe-image"
+                    />
+                    <p><strong>Ingredients:</strong> {recipe.ingredients}</p>
+                    <p><strong>Instructions:</strong> {recipe.instructions}</p>
+                    <p><strong>Dietary Tags:</strong> {Array.isArray(recipe.dietaryTags) ? recipe.dietaryTags.join(', ') : 'None'}</p>
+                    <p><strong>Favorites:</strong> {recipe.favoritesCount}</p>
+                    <button onClick={handleToggleFavorite}>
+                        {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
+                    </button>
+                    {user.id === recipe.ownerId && (
+                        <>
+                            <button onClick={() => setIsEditingRecipe(true)}>Edit Recipe</button>
+                            <button onClick={handleDeleteRecipe}>Delete Recipe</button>
+                        </>
+                    )}
+                </div>
+            ) : (
+                <div>
+                    <h1>Edit Recipe</h1>
+                    <input
+                        type="text"
+                        name="title"
+                        placeholder="Title"
+                        defaultValue={recipe.title}
+                        onChange={handleInputChange}
+                    />
+                    <textarea
+                        name="ingredients"
+                        placeholder="Ingredients"
+                        defaultValue={recipe.ingredients}
+                        onChange={handleInputChange}
+                    />
+                    <textarea
+                        name="instructions"
+                        placeholder="Instructions"
+                        defaultValue={recipe.instructions}
+                        onChange={handleInputChange}
+                    />
+                    <input
+                        type="text"
+                        name="dietaryTags"
+                        placeholder="Dietary Tags (comma-separated)"
+                        defaultValue={Array.isArray(recipe.dietaryTags) ? recipe.dietaryTags.join(', ') : ''}
+                        onChange={handleInputChange}
+                    />
+                    <input
+                        type="text"
+                        name="imageUrl"
+                        placeholder="Image URL"
+                        defaultValue={recipe.imageUrl}
+                        onChange={handleInputChange}
+                    />
+                    <button onClick={handleEditRecipe}>Save</button>
+                    <button onClick={() => setIsEditingRecipe(false)}>Cancel</button>
+                </div>
+            )}
+
+            <h3>Comments</h3>
+            <ul>
+                {comments.map((comment) => (
+                    <li key={comment.id}>
+                        {editingCommentId === comment.id ? (
+                            <div>
+                                <textarea
+                                    value={editedCommentContent}
+                                    onChange={(e) => setEditedCommentContent(e.target.value)}
+                                />
+                                <button onClick={handleSaveEditedComment}>Save</button>
+                                <button onClick={() => setEditingCommentId(null)}>Cancel</button>
+                            </div>
                         ) : (
-                            <p>You have no favorite recipes yet.</p>
+                            <div>
+                                <p>
+                                    <strong>{comment.username}:</strong> {comment.content}
+                                </p>
+                                <p className="comment-date">
+                                    <em>Posted on: {new Date(comment.createdAt).toLocaleString()}</em>
+                                    {comment.editedAt && (
+                                        <span> (Last edited: {new Date(comment.editedAt).toLocaleString()})</span>
+                                    )}
+                                </p>
+                                {user && user.id === comment.userId && (
+                                    <div>
+                                        <button onClick={() => handleEditComment(comment.id, comment.content)}>
+                                            Edit
+                                        </button>
+                                        <button onClick={() => handleDeleteComment(comment.id)}>Delete</button>
+                                    </div>
+                                )}
+                            </div>
                         )}
-                    </div>
-                )}
-            </div>
+                    </li>
+                ))}
+            </ul>
+
+            <textarea
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Add a comment"
+            />
+            <button onClick={handleAddComment}>Add Comment</button>
         </div>
     );
 };
 
-export default Profile;
+export default RecipeDetail;
