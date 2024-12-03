@@ -171,3 +171,15 @@
     width: 200px;
     margin-bottom: 20px;
 }
+
+.recipe-details {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.recipe-details.show {
+    max-height: 500px; /* Adjust to a value that suits your content size */
+    opacity: 1;
+}

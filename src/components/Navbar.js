@@ -68,11 +68,11 @@ const Navbar = ({ isAuthenticated }) => {
                                         Discover Recipes
                                     </Link>
                                 </li> */}
-                                <li className="nav-item">
+                                {/* <li className="nav-item">
                                     <Link to="/share" className="nav-link">
                                         Share Recipes
                                     </Link>
-                                </li>
+                                </li> */}
                                 {/* <li className="nav-item">
                                     <Link to="/cook-together" className="nav-link">
                                         Cook Together
