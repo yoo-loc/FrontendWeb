@@ -1,66 +1,54 @@
-/* Container Styling */
-.recipe-form-container {
-    max-width: 500px;
-    margin: 20px auto;
+.recipe-form {
+    max-width: 600px;
+    margin: 0 auto;
     padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Form Inputs */
-.recipe-form input,
-.recipe-form textarea,
-.recipe-form button {
+.form-input, .form-textarea {
     width: 100%;
-    margin: 10px 0;
+    max-width: 100%;
     padding: 10px;
+    margin-bottom: 10px;
     border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 14px;
+    border-radius: 4px;
+    box-sizing: border-box;
 }
 
-.recipe-form textarea {
-    resize: vertical;
-    min-height: 80px;
+.form-textarea {
+    height: 150px;
 }
 
-/* Submit Button */
-.recipe-form button {
-    background-color: #007bff;
-    color: #fff;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+.form-button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
     border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
 }
 
-.recipe-form button:disabled {
+.form-button:disabled {
     background-color: #ccc;
-    cursor: not-allowed;
 }
 
-.recipe-form button:hover:not(:disabled) {
-    background-color: #0056b3;
-}
-
-/* Popup Message */
 .popup {
-    text-align: center;
-    margin-top: 20px;
-    padding: 10px;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px;
     border-radius: 5px;
+    font-size: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    z-index: 999;
 }
 
-.popup.success {
-    color: #155724;
-    background-color: #d4edda;
-    border: 1px solid #c3e6cb;
-}
-
-.popup.error {
-    color: #721c24;
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
+.popup p {
+    margin: 0;
 }
