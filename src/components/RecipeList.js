@@ -8,35 +8,29 @@ const RecipeList = () => {
     const [filteredRecipes, setFilteredRecipes] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [error, setError] = useState('');
-    const [loading, setLoading] = useState(true); // Loading state
-    const navigate = useNavigate(); // For navigation
+    const [loading, setLoading] = useState(true);
+    const [visibleIngredients, setVisibleIngredients] = useState({});
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchRecipes = async () => {
             try {
-                const storedUser = JSON.parse(sessionStorage.getItem('user'));
-                if (!storedUser) {
-                    console.error('User is not authenticated.');
-                    setError('You need to log in to view recipes.');
-                    setLoading(false);
-                    return;
-                }
-
                 const response = await axios.get('http://localhost:8080/recipes/all', {
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${storedUser.token}`,
                     },
                     withCredentials: true,
                 });
 
-                setRecipes(response.data);
-                setFilteredRecipes(response.data); // Initialize filtered recipes
+
+                const sortedRecipes = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                setRecipes(sortedRecipes);
+                setFilteredRecipes(sortedRecipes);
             } catch (error) {
                 console.error('Error fetching recipes:', error);
                 setError('Failed to fetch recipes. Please try again later.');
             } finally {
-                setLoading(false); // End loading state
+                setLoading(false);
             }
         };
 
@@ -57,12 +51,11 @@ const RecipeList = () => {
 
     const handleDelete = async (id) => {
         try {
-            const storedUser = JSON.parse(sessionStorage.getItem('user'));
             await axios.delete(`http://localhost:8080/recipes/${id}`, {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${storedUser.token}`,
                 },
+                withCredentials: true,
             });
 
             setRecipes(recipes.filter((recipe) => recipe.id !== id));
@@ -74,38 +67,23 @@ const RecipeList = () => {
         }
     };
 
-    const handleAddToFavorites = async (recipeId) => {
-        try {
-            const storedUser = JSON.parse(sessionStorage.getItem('user'));
-            if (!storedUser) {
-                setError('You need to log in to add favorites.');
-                return;
-            }
-
-            await axios.post(`http://localhost:8080/recipes/favorites/${storedUser.id}`, recipeId, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${storedUser.token}`,
-                },
-            });
-
-            alert('Recipe added to favorites!');
-        } catch (error) {
-            console.error('Error adding to favorites:', error);
-            setError('Failed to add the recipe to favorites. Please try again.');
-        }
+    const handleViewDetails = (id) => {
+        navigate(`/recipes/${id}/details`);
     };
 
-    const handleViewDetails = (id) => {
-        navigate(`/recipes/${id}/details`); // Navigate to RecipeDetail page
+    const toggleVisibility = (id) => {
+        setVisibleIngredients((prevState) => ({
+            ...prevState,
+            [id]: !prevState[id],
+        }));
     };
 
     if (loading) {
-        return <div className="loading-message">Loading recipes...</div>; // Display loading message
+        return <div className="loading-message">Loading recipes...</div>;
     }
 
     if (error) {
-        return <div className="error-message">{error}</div>; // Display error message
+        return <div className="error-message">{error}</div>;
     }
 
     return (
@@ -131,14 +109,8 @@ const RecipeList = () => {
                                 alt={recipe.title}
                                 className="recipe-image"
                             />
-                            <p>
-                                <strong>Ingredients:</strong>{' '}
-                                {Array.isArray(recipe.ingredients)
-                                    ? recipe.ingredients.join(', ')
-                                    : recipe.ingredients}
-                            </p>
-                            <p><strong>Instructions:</strong> {recipe.instructions}</p>
                             <p><strong>Dietary Tags:</strong> {recipe.dietaryTags?.join(', ') || 'None'}</p>
+                            <p><strong>Posted At:</strong> {new Date(recipe.createdAt).toLocaleString()}</p>
                             <div className="recipe-actions">
                                 <button
                                     onClick={() => handleViewDetails(recipe.id)}
@@ -152,12 +124,22 @@ const RecipeList = () => {
                                 >
                                     Delete
                                 </button>
+                            
+
+                            {/* Ingredients and Instructions Toggle */}
+                            
                                 <button
-                                    onClick={() => handleAddToFavorites(recipe.id)}
-                                    className="favorite-button"
+                                    onClick={() => toggleVisibility(recipe.id)}
+                                    className="view-details-button"
                                 >
-                                    Add to Favorites
+                                    {visibleIngredients[recipe.id] ? 'Hide Details' : 'Show Details'}
                                 </button>
+                                {visibleIngredients[recipe.id] && (
+                                    <>
+                                        <p><strong>Ingredients:</strong> {recipe.ingredients}</p>
+                                        <p><strong>Instructions:</strong> {recipe.instructions}</p>
+                                    </>
+                                )}
                             </div>
                         </div>
                     ))}
