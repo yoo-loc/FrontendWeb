@@ -24,6 +24,11 @@ const Navbar = ({ isAuthenticated }) => {
                 <div className="collapse navbar-collapse" id="navbarNav">
                     <ul className="navbar-nav ms-auto">
                         {/* Public Links */}
+                        {/* <li className="nav-item">
+                            <Link to="/" className="nav-link">
+                                Home
+                            </Link>
+                        </li> */}
                         <li className="nav-item">
                             <Link to="/signup" className="nav-link">
                                 Signup
@@ -68,15 +73,6 @@ const Navbar = ({ isAuthenticated }) => {
                                         Share Recipes
                                     </Link>
                                 </li>
-
-
-                                <li className="nav-item">
-                                    <Link to="/RecipeForm" className="nav-link">
-                                        Recipes Form
-                                    </Link>
-                                </li>
-
-
                                 {/* <li className="nav-item">
                                     <Link to="/cook-together" className="nav-link">
                                         Cook Together

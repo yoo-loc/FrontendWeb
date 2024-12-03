@@ -8,8 +8,9 @@ const RecipeList = () => {
     const [filteredRecipes, setFilteredRecipes] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [error, setError] = useState('');
-    const [loading, setLoading] = useState(true); // Loading state
-    const navigate = useNavigate(); // For navigation
+    const [loading, setLoading] = useState(true);
+    const [visibleIngredients, setVisibleIngredients] = useState({});
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchRecipes = async () => {
@@ -21,15 +22,15 @@ const RecipeList = () => {
                     withCredentials: true,
                 });
 
-                // Sort recipes by `createdAt` in descending order
+
                 const sortedRecipes = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 setRecipes(sortedRecipes);
-                setFilteredRecipes(sortedRecipes); // Initialize filtered recipes
+                setFilteredRecipes(sortedRecipes);
             } catch (error) {
                 console.error('Error fetching recipes:', error);
                 setError('Failed to fetch recipes. Please try again later.');
             } finally {
-                setLoading(false); // End loading state
+                setLoading(false);
             }
         };
 
@@ -57,7 +58,6 @@ const RecipeList = () => {
                 withCredentials: true,
             });
 
-            // Update recipes after deletion
             setRecipes(recipes.filter((recipe) => recipe.id !== id));
             setFilteredRecipes(filteredRecipes.filter((recipe) => recipe.id !== id));
             alert('Recipe deleted successfully!');
@@ -68,15 +68,22 @@ const RecipeList = () => {
     };
 
     const handleViewDetails = (id) => {
-        navigate(`/recipes/${id}/details`); // Navigate to RecipeDetail page
+        navigate(`/recipes/${id}/details`);
+    };
+
+    const toggleVisibility = (id) => {
+        setVisibleIngredients((prevState) => ({
+            ...prevState,
+            [id]: !prevState[id],
+        }));
     };
 
     if (loading) {
-        return <div className="loading-message">Loading recipes...</div>; // Display loading message
+        return <div className="loading-message">Loading recipes...</div>;
     }
 
     if (error) {
-        return <div className="error-message">{error}</div>; // Display error message
+        return <div className="error-message">{error}</div>;
     }
 
     return (
@@ -102,8 +109,6 @@ const RecipeList = () => {
                                 alt={recipe.title}
                                 className="recipe-image"
                             />
-                            <p><strong>Ingredients:</strong> {recipe.ingredients}</p>
-                            <p><strong>Instructions:</strong> {recipe.instructions}</p>
                             <p><strong>Dietary Tags:</strong> {recipe.dietaryTags?.join(', ') || 'None'}</p>
                             <p><strong>Posted At:</strong> {new Date(recipe.createdAt).toLocaleString()}</p>
                             <div className="recipe-actions">
@@ -119,6 +124,22 @@ const RecipeList = () => {
                                 >
                                     Delete
                                 </button>
+                            
+
+                            {/* Ingredients and Instructions Toggle */}
+                            
+                                <button
+                                    onClick={() => toggleVisibility(recipe.id)}
+                                    className="view-details-button"
+                                >
+                                    {visibleIngredients[recipe.id] ? 'Hide Details' : 'Show Details'}
+                                </button>
+                                {visibleIngredients[recipe.id] && (
+                                    <>
+                                        <p><strong>Ingredients:</strong> {recipe.ingredients}</p>
+                                        <p><strong>Instructions:</strong> {recipe.instructions}</p>
+                                    </>
+                                )}
                             </div>
                         </div>
                     ))}

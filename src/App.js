@@ -43,7 +43,6 @@ const App = () => {
                 <Route path="/discover" element={isAuthenticated ? <DiscoverRecipes /> : <Navigate to="/login" replace />} />
                 <Route path="/share" element={isAuthenticated ? <ShareRecipes /> : <Navigate to="/login" replace />} />
                 <Route path="/cook-together" element={isAuthenticated ? <CookTogether /> : <Navigate to="/login" replace />} />
-                <Route path="/RecipeForm" element={isAuthenticated ? <RecipeForm /> : <Navigate to="/login" replace />} />
                 <Route path="/recipes/:id/details" element={<RecipeDetail />} />
 
                 {/* SignUp Route */}
