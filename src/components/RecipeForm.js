@@ -1,133 +1,139 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import axios from 'axios';
-import './RecipeList.css';
 
-const RecipeList = () => {
-    const [recipes, setRecipes] = useState([]);
-    const [filteredRecipes, setFilteredRecipes] = useState([]);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(true); // Loading state
-    const navigate = useNavigate(); // For navigation
+const RecipeForm = () => {
+    const [formData, setFormData] = useState({
+        title: '',
+        ingredients: '',
+        instructions: '',
+        dietaryTags: '',
+        imageUrl: ''
+    });
 
-    useEffect(() => {
-        const fetchRecipes = async () => {
-            try {
-                const response = await axios.get('http://localhost:8080/recipes/all', {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    withCredentials: true,
-                });
+    const [message, setMessage] = useState(''); // Success or error message
+    const [showPopup, setShowPopup] = useState(false); // Popup visibility
+    const [loading, setLoading] = useState(false); // Loading state for the submit button
 
-                // Sort recipes by `createdAt` in descending order
-                const sortedRecipes = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                setRecipes(sortedRecipes);
-                setFilteredRecipes(sortedRecipes); // Initialize filtered recipes
-            } catch (error) {
-                console.error('Error fetching recipes:', error);
-                setError('Failed to fetch recipes. Please try again later.');
-            } finally {
-                setLoading(false); // End loading state
-            }
-        };
-
-        fetchRecipes();
-    }, []);
-
-    const handleSearch = () => {
-        const query = searchQuery.toLowerCase();
-        const filtered = recipes.filter((recipe) => {
-            const titleMatch = recipe.title.toLowerCase().includes(query);
-            const tagsMatch = Array.isArray(recipe.dietaryTags)
-                ? recipe.dietaryTags.some((tag) => tag.toLowerCase().includes(query))
-                : recipe.dietaryTags?.toLowerCase().includes(query);
-            return titleMatch || tagsMatch;
-        });
-        setFilteredRecipes(filtered);
+    // Handle form input changes
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleDelete = async (id) => {
+    // Parse dietary tags into a list
+    const parseDietaryTags = (tags) => {
+        return tags.split(',').map((tag) => tag.trim()).filter((tag) => tag !== '');
+    };
+
+    // Handle form submission
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setMessage('');
+        setShowPopup(false);
+    
         try {
-            await axios.delete(`http://localhost:8080/recipes/${id}`, {
+            // Parse dietaryTags into an array
+            const dataToSubmit = {
+                ...formData,
+                dietaryTags: parseDietaryTags(formData.dietaryTags)
+            };
+    
+            // POST request to backend with session credentials
+            const response = await axios.post('http://localhost:8080/recipes', dataToSubmit, {
+                withCredentials: true, // Include cookies for session-based authentication
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                withCredentials: true,
             });
-
-            // Update recipes after deletion
-            setRecipes(recipes.filter((recipe) => recipe.id !== id));
-            setFilteredRecipes(filteredRecipes.filter((recipe) => recipe.id !== id));
-            alert('Recipe deleted successfully!');
+    
+            console.log('Recipe submitted:', response.data);
+            setMessage('Recipe added successfully!');
+            setShowPopup(true);
+    
+            // Reset form fields
+            setFormData({
+                title: '',
+                ingredients: '',
+                instructions: '',
+                dietaryTags: '',
+                imageUrl: ''
+            });
+    
+            // Hide popup after 3 seconds
+            setTimeout(() => {
+                setShowPopup(false);
+            }, 3000);
         } catch (error) {
-            console.error('Error deleting recipe:', error);
-            setError('Failed to delete the recipe. Please try again.');
+            console.error('Error submitting recipe:', error);
+    
+            // Error handling with detailed messages
+            if (error.response) {
+                setMessage(`Error: ${error.response.data.message || 'Failed to submit recipe.'}`);
+            } else if (error.request) {
+                setMessage('Error: No response from server.');
+            } else {
+                setMessage('Unexpected error occurred.');
+            }
+    
+            setShowPopup(true);
+        } finally {
+            setLoading(false);
         }
     };
-
-    const handleViewDetails = (id) => {
-        navigate(`/recipes/${id}/details`); // Navigate to RecipeDetail page
-    };
-
-    if (loading) {
-        return <div className="loading-message">Loading recipes...</div>; // Display loading message
-    }
-
-    if (error) {
-        return <div className="error-message">{error}</div>; // Display error message
-    }
+    
 
     return (
-        <div className="recipe-list-container">
-            <h1 className="recipe-list-title">Recipes</h1>
-            <div className="search-bar">
+        <div>
+            <form onSubmit={handleSubmit}>
                 <input
                     type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search by title or dietary tags"
-                    className="search-input"
+                    name="title"
+                    placeholder="Title"
+                    value={formData.title}
+                    onChange={handleChange}
+                    required
                 />
-                <button onClick={handleSearch} className="search-button">Search</button>
-            </div>
-            {filteredRecipes.length > 0 ? (
-                <div className="recipe-grid">
-                    {filteredRecipes.map((recipe) => (
-                        <div className="recipe-card" key={recipe.id}>
-                            <h2>{recipe.title}</h2>
-                            <img
-                                src={recipe.imageUrl || 'https://via.placeholder.com/300x200'}
-                                alt={recipe.title}
-                                className="recipe-image"
-                            />
-                            <p><strong>Ingredients:</strong> {recipe.ingredients}</p>
-                            <p><strong>Instructions:</strong> {recipe.instructions}</p>
-                            <p><strong>Dietary Tags:</strong> {recipe.dietaryTags?.join(', ') || 'None'}</p>
-                            <p><strong>Posted At:</strong> {new Date(recipe.createdAt).toLocaleString()}</p>
-                            <div className="recipe-actions">
-                                <button
-                                    onClick={() => handleViewDetails(recipe.id)}
-                                    className="view-details-button"
-                                >
-                                    View Details
-                                </button>
-                                <button
-                                    onClick={() => handleDelete(recipe.id)}
-                                    className="delete-button"
-                                >
-                                    Delete
-                                </button>
-                            </div>
-                        </div>
-                    ))}
+                <textarea
+                    name="ingredients"
+                    placeholder="Ingredients"
+                    value={formData.ingredients}
+                    onChange={handleChange}
+                    required
+                />
+                <textarea
+                    name="instructions"
+                    placeholder="Instructions"
+                    value={formData.instructions}
+                    onChange={handleChange}
+                    required
+                />
+                <input
+                    type="text"
+                    name="dietaryTags"
+                    placeholder="Dietary Tags (comma-separated)"
+                    value={formData.dietaryTags}
+                    onChange={handleChange}
+                />
+                <input
+                    type="url"
+                    name="imageUrl"
+                    placeholder="Image URL"
+                    value={formData.imageUrl}
+                    onChange={handleChange}
+                />
+                <button type="submit" disabled={loading}>
+                    {loading ? 'Submitting...' : 'Submit Recipe'}
+                </button>
+            </form>
+
+            {/* Popup for success/failure message */}
+            {showPopup && (
+                <div>
+                    <p>{message}</p>
                 </div>
-            ) : (
-                <p className="no-recipes-message">No recipes found.</p>
             )}
         </div>
     );
 };
 
-export default RecipeList;
+export default RecipeForm;

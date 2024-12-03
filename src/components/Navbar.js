@@ -1,105 +1,54 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Navbar.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Navbar = ({ isAuthenticated }) => {
+    const [isDropdownOpen, setDropdownOpen] = useState(false);
+
+    const toggleDropdown = () => setDropdownOpen(!isDropdownOpen);
+
     return (
-        <nav className="navbar navbar-expand-lg navbar-light bg-light">
-            <div className="container-fluid">
-                <Link to="/" className="navbar-brand">
-                    Home
-                </Link>
-                <button
-                    className="navbar-toggler"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#navbarNav"
-                    aria-controls="navbarNav"
-                    aria-expanded="false"
-                    aria-label="Toggle navigation"
-                >
-                    <span className="navbar-toggler-icon"></span>
+        <nav className="navbar">
+            <Link to="/" className="navbar-link navbar-home">Home</Link>
+
+            <div className="navbar-menu">
+                <button onClick={toggleDropdown} className="navbar-button">
+                    Menu
                 </button>
-                <div className="collapse navbar-collapse" id="navbarNav">
-                    <ul className="navbar-nav ms-auto">
+
+                {isDropdownOpen && (
+                    <div className="dropdown">
                         {/* Public Links */}
-                        <li className="nav-item">
-                            <Link to="/signup" className="nav-link">
-                                Signup
-                            </Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link to="/login" className="nav-link">
-                                Login
-                            </Link>
-                        </li>
+                        <Link to="/" className="dropdown-link">Home</Link>
+                        <Link to="/signup" className="dropdown-link">Signup</Link>
+                        <Link to="/login" className="dropdown-link">Login</Link>
 
                         {/* Authenticated-Only Links */}
                         {isAuthenticated && (
                             <>
-                                {/* <li className="nav-item">
-                                    <Link to="/dashboard" className="nav-link">
-                                        Dashboard
-                                    </Link>
-                                </li> */}
-                                <li className="nav-item">
-                                    <Link to="/FavoriteRecipes" className="nav-link">
-                                        Favorite Recipes
-                                    </Link>
-                                </li>
-                                <li className="nav-item">
-                                    <Link to="/recipes" className="nav-link">
-                                        Recipes
-                                    </Link>
-                                </li>
-                                <li className="nav-item">
-                                    <Link to="/add-recipe" className="nav-link">
-                                        Add Recipe
-                                    </Link>
-                                </li>
-                                {/* <li className="nav-item">
-                                    <Link to="/discover" className="nav-link">
-                                        Discover Recipes
-                                    </Link>
-                                </li> */}
-                                <li className="nav-item">
-                                    <Link to="/share" className="nav-link">
-                                        Share Recipes
-                                    </Link>
-                                </li>
-
-
-                                <li className="nav-item">
-                                    <Link to="/RecipeForm" className="nav-link">
-                                        Recipes Form
-                                    </Link>
-                                </li>
-
-
-                                {/* <li className="nav-item">
-                                    <Link to="/cook-together" className="nav-link">
-                                        Cook Together
-                                    </Link>
-                                </li> */}
-                                <li className="nav-item">
-                                    <Link to="/profile" className="nav-link">
-                                        Profile
-                                    </Link>
-                                </li>
+                                <Link to="/dashboard" className="dropdown-link">Dashboard</Link>
+                                <Link to="/FavoriteRecipes" className="dropdown-link">Favorite Recipes</Link>
+                                <Link to="/recipes" className="dropdown-link">Recipes</Link>
+                                <Link to="/add-recipe" className="dropdown-link">Add Recipe</Link>
+                                <Link to="/discover" className="dropdown-link">Discover Recipes</Link>
+                                <Link to="/share" className="dropdown-link">Share Recipes</Link>
+                                <Link to="/cook-together" className="dropdown-link">Cook Together</Link>
+                                <Link to="/profile" className="dropdown-link">Profile</Link>
+                                
                             </>
                         )}
 
                         {/* Logout Link */}
-                        {isAuthenticated && (
-                            <li className="nav-item">
-                                <Link to="/logout" className="nav-link">
-                                    Logout
-                                </Link>
-                            </li>
-                        )}
-                    </ul>
-                </div>
+                        <div className="dropdown-divider"></div>
+                        <Link
+                            to="/logout"
+                            className="dropdown-link"
+                            onClick={() => setDropdownOpen(false)}
+                        >
+                            Logout
+                        </Link>
+                    </div>
+                )}
             </div>
         </nav>
     );
