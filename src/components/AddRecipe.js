@@ -1,7 +1,8 @@
-import './RecipeForm.css';
+import './AddRecipe.css';
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const AddRecipe = () => {
     const [name, setName] = useState("");

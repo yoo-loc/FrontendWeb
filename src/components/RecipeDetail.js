@@ -298,7 +298,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './RecipeDetail.css'; // Import a CSS file for styling
+import './RecipeDetail.css';
 
 const RecipeDetail = () => {
     const { id } = useParams();
@@ -466,13 +466,13 @@ const RecipeDetail = () => {
 
     return (
         <div className="recipe-detail-container">
-            {user && (
+            {/* {user && (
                 <div className="user-info">
                     <h3>User Info:</h3>
                     <p><strong>ID:</strong> {user.id}</p>
                     <p><strong>Username:</strong> {user.username}</p>
                 </div>
-            )}
+            )} */}
 
             {!isEditingRecipe ? (
                 <div className="recipe-card">

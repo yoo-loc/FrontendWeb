@@ -17,21 +17,21 @@ function Home() {
         </button>
       </div>
       <div className="home-highlight-section">
-        <div className="highlight" onClick={() => navigate('/discover')}>
+        <div className="highlight" onClick={() => navigate('/recipes')}>
           <div className="highlight-icon">🍴</div>
           <h3>Discover Unique Recipes</h3>
           <p>Find recipes from around the world.</p>
         </div>
-        <div className="highlight" onClick={() => navigate('/share')}>
+        <div className="highlight" onClick={() => navigate('/add-recipe')}>
           <div className="highlight-icon">📖</div>
           <h3>Share Your Own Recipes</h3>
           <p>Contribute your favorite recipes and share them with the community.</p>
         </div>
-        <div className="highlight" onClick={() => navigate('/cook-together')}>
+        {/* <div className="highlight" onClick={() => navigate('/cook-together')}>
           <div className="highlight-icon">👨‍🍳</div>
           <h3>Cook Together</h3>
           <p>Join others in learning how to cook new dishes.</p>
-        </div>
+        </div> */}
       </div>
     </div>
   );
