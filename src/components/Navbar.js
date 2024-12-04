@@ -48,11 +48,11 @@ const Navbar = ({ isAuthenticated }) => {
                                         Dashboard
                                     </Link>
                                 </li> */}
-                                <li className="nav-item">
+                                {/* <li className="nav-item">
                                     <Link to="/FavoriteRecipes" className="nav-link">
                                         Favorite Recipes
                                     </Link>
-                                </li>
+                                </li> */}
                                 <li className="nav-item">
                                     <Link to="/recipes" className="nav-link">
                                         Recipes
