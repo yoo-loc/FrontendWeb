@@ -71,8 +71,8 @@ const RecipeDetail = () => {
     };
     
 
+// comment
 
-    
 
     const handleDeleteRecipe = async () => {
         try {
@@ -192,13 +192,7 @@ const RecipeDetail = () => {
 
     return (
         <div className="recipe-detail-container">
-            {/* {user && (
-                <div className="user-info">
-                    <h3>User Info:</h3>
-                    <p><strong>ID:</strong> {user.id}</p>
-                    <p><strong>Username:</strong> {user.username}</p>
-                </div>
-            )} */}
+           
 
             {!isEditingRecipe ? (
                 <div className="recipe-card">
@@ -266,7 +260,7 @@ const RecipeDetail = () => {
             <h3>Comments</h3>
             <ul className="comments-list">
     {comments
-        .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)) // Sort by createdAt (ascending order)
+        .toSorted((a, b) => new Date(a.createdAt) - new Date(b.createdAt)) // Sort by createdAt (ascending order)
         .map((comment) => (
             <li key={comment.id} className="comment-item">
                 {editingCommentId === comment.id ? (
