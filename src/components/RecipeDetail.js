@@ -71,6 +71,9 @@ const RecipeDetail = () => {
     };
     
 
+
+    
+
     const handleDeleteRecipe = async () => {
         try {
             await axios.delete(`http://localhost:8080/recipes/${id}`, { withCredentials: true });
