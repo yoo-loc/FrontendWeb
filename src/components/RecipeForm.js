@@ -86,8 +86,8 @@ const RecipeForm = () => {
     
 
     return (
-        <div>
-            <form onSubmit={handleSubmit}>
+        <div className="recipe-form-container">
+            <form className="recipe-form" onSubmit={handleSubmit}>
                 <input
                     type="text"
                     name="title"
@@ -128,15 +128,14 @@ const RecipeForm = () => {
                     {loading ? 'Submitting...' : 'Submit Recipe'}
                 </button>
             </form>
-
-            {/* Popup for success/failure message */}
             {showPopup && (
-                <div>
+                <div className={`popup ${message.includes('success') ? 'success' : 'error'}`}>
                     <p>{message}</p>
                 </div>
             )}
         </div>
     );
+    
 };
 
 export default RecipeForm;
