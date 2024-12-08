@@ -204,7 +204,7 @@ const RecipeDetail = () => {
                     />
                     <p><strong>Ingredients:</strong> {recipe.ingredients}</p>
                     <p><strong>Instructions:</strong> {recipe.instructions}</p>
-                    <p><strong>Dietary Tags:</strong> {Array.isArray(recipe.dietaryTags) ? recipe.dietaryTags.join(', ') : 'None'}</p>
+                    <p><strong>Tags:</strong> {Array.isArray(recipe.dietaryTags) ? recipe.dietaryTags.join(', ') : 'None'}</p>
                     <p><strong>Favorites:</strong> {recipe.favoritesCount}</p>
                     <button className="favorite-btn" onClick={handleToggleFavorite}>
                         {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}

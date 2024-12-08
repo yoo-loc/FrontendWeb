@@ -21,38 +21,11 @@ const Navbar = ({ isAuthenticated }) => {
                 >
                     <span className="navbar-toggler-icon"></span>
                 </button>
-                <div className="collapse navbar-collapse" id="navbarNav">
-                    <ul className="navbar-nav ms-auto">
-                        {/* Public Links */}
-                        {/* <li className="nav-item">
-                            <Link to="/" className="nav-link">
-                                Home
-                            </Link>
-                        </li> */}
-                        <li className="nav-item">
-                            <Link to="/signup" className="nav-link">
-                                Signup
-                            </Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link to="/login" className="nav-link">
-                                Login
-                            </Link>
-                        </li>
-
-                        {/* Authenticated-Only Links */}
+                <div className="collapse navbar-collapse justify-content-center" id="navbarNav">
+                    <ul className="navbar-nav gap-4">
+                        {/* Authenticated Links */}
                         {isAuthenticated && (
                             <>
-                                {/* <li className="nav-item">
-                                    <Link to="/dashboard" className="nav-link">
-                                        Dashboard
-                                    </Link>
-                                </li> */}
-                                {/* <li className="nav-item">
-                                    <Link to="/FavoriteRecipes" className="nav-link">
-                                        Favorite Recipes
-                                    </Link>
-                                </li> */}
                                 <li className="nav-item">
                                     <Link to="/recipes" className="nav-link">
                                         Recipes
@@ -63,36 +36,17 @@ const Navbar = ({ isAuthenticated }) => {
                                         Add Recipe
                                     </Link>
                                 </li>
-                                {/* <li className="nav-item">
-                                    <Link to="/discover" className="nav-link">
-                                        Discover Recipes
-                                    </Link>
-                                </li> */}
-                                {/* <li className="nav-item">
-                                    <Link to="/share" className="nav-link">
-                                        Share Recipes
-                                    </Link>
-                                </li> */}
-                                {/* <li className="nav-item">
-                                    <Link to="/cook-together" className="nav-link">
-                                        Cook Together
-                                    </Link>
-                                </li> */}
                                 <li className="nav-item">
                                     <Link to="/profile" className="nav-link">
                                         Profile
                                     </Link>
                                 </li>
+                                <li className="nav-item">
+                                    <Link to="/logout" className="nav-link">
+                                        Logout
+                                    </Link>
+                                </li>
                             </>
-                        )}
-
-                        {/* Logout Link */}
-                        {isAuthenticated && (
-                            <li className="nav-item">
-                                <Link to="/logout" className="nav-link">
-                                    Logout
-                                </Link>
-                            </li>
                         )}
                     </ul>
                 </div>

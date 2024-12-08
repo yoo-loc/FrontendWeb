@@ -94,7 +94,7 @@ const RecipeList = () => {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search by title or dietary tags"
+                    placeholder="Search by title or tags"
                     className="search-input"
                 />
                 <button onClick={handleSearch} className="view-details-button">Search</button>
@@ -109,7 +109,7 @@ const RecipeList = () => {
                                 alt={recipe.title}
                                 className="recipe-image"
                             />
-                            <p><strong>Dietary Tags:</strong> {recipe.dietaryTags?.join(', ') || 'None'}</p>
+                            <p><strong>Tags:</strong> {recipe.dietaryTags?.join(', ') || 'None'}</p>
                             <p><strong>Posted At:</strong> {new Date(recipe.createdAt).toLocaleString()}</p>
                             <div className="recipe-actions">
                                 <button
