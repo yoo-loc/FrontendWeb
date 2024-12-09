@@ -5,6 +5,7 @@
     padding: 10px 20px;
     background-color: #333;
     color: #fff;
+    text-align: center;
 }
 
 .navbar-link {
@@ -61,4 +62,15 @@
 
 .dropdown-link:hover {
     background-color: #f1f1f1;
+}
+
+.navbar-nav {
+    display: flex;
+    gap: 50px; /* Customize the spacing between items */
+    justify-content: center;
+    align-items: center;
+}
+
+.nav-item {
+    text-align: center;
 }

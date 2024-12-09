@@ -22,7 +22,7 @@
     margin-bottom: 15px;
 }
 
-.favorite-btn, .edit-btn, .delete-btn, .save-btn, .cancel-btn, .add-comment-btn {
+.favorite-btn, .edit-btn, .delete-btn, .save-btn, .cancel-btn, .add-comment-btn, .favorite-btn {
     padding: 10px 15px;
     font-size: 14px;
     background-color: #007bff;
@@ -31,6 +31,7 @@
     border-radius: 5px;
     cursor: pointer;
     margin: 5px;
+    align-items: center;
 }
 
 .favorite-btn:hover, .edit-btn:hover, .delete-btn:hover, .save-btn:hover, .cancel-btn:hover, .add-comment-btn:hover {
