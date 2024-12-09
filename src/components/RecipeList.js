@@ -105,7 +105,7 @@ const RecipeList = () => {
                         <div className="recipe-card" key={recipe.id}>
                             <h2>{recipe.title}</h2>
                             <img
-                                src={recipe.imageUrl || 'https://via.placeholder.com/300x200'}
+                                src={recipe.imageUrl || '/image.png'}
                                 alt={recipe.title}
                                 className="recipe-image"
                             />
