@@ -30,14 +30,17 @@ const RecipeDetail = () => {
                 setUser(storedUser);
 
                 const [recipeResponse, commentsResponse, favoritesResponse] = await Promise.all([
-                    axios.get(`http://localhost:8080/recipes/${id}`, { withCredentials: true }),
+                    axios.get(`http://localhost:8080/recipes/${id}/details`, { withCredentials: true }),
                     axios.get(`http://localhost:8080/recipes/${id}/comments`, { withCredentials: true }),
                     axios.get(`http://localhost:8080/recipes/favorites/${storedUser.id}`, { withCredentials: true }),
                 ]);
+                console.log('API Response for Recipe:', recipeResponse.data); 
 
                 setRecipe(recipeResponse.data);
                 setComments(commentsResponse.data);
                 setIsFavorite(favoritesResponse.data.some((fav) => fav.id === id));
+
+                
             } catch (error) {
                 console.error('Error fetching recipe data:', error);
                 if (error.response?.status === 401) {
@@ -202,6 +205,7 @@ const RecipeDetail = () => {
                         alt={recipe.title}
                         className="recipe-detail-image"
                     />
+                    <p><strong>Posted by:</strong> {recipe.ownerUsername}</p>
                     <p><strong>Ingredients:</strong> {recipe.ingredients}</p>
                     <p><strong>Instructions:</strong> {recipe.instructions}</p>
                     <p><strong>Tags:</strong> {Array.isArray(recipe.dietaryTags) ? recipe.dietaryTags.join(', ') : 'None'}</p>
