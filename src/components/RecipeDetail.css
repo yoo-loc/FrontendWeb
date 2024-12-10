@@ -8,21 +8,22 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.recipe-card {
+.recipe-detail-card {
     background-color: white;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.recipe-image {
+.recipe-detail-image {
     max-width: 100%;
     height: auto;
     border-radius: 8px;
     margin-bottom: 15px;
 }
 
-.favorite-btn, .edit-btn, .delete-btn, .save-btn, .cancel-btn, .add-comment-btn, .favorite-btn {
+/* Buttons */
+.recipe-detail-btn {
     padding: 10px 15px;
     font-size: 14px;
     background-color: #007bff;
@@ -34,10 +35,11 @@
     align-items: center;
 }
 
-.favorite-btn:hover, .edit-btn:hover, .delete-btn:hover, .save-btn:hover, .cancel-btn:hover, .add-comment-btn:hover {
+.recipe-detail-btn:hover {
     background-color: #0056b3;
 }
 
+/* Comments */
 .comment-item {
     background-color: #fff;
     padding: 15px;
@@ -67,19 +69,4 @@
 .comments-list {
     list-style-type: none;
     padding: 0;
-}
-
-.error-message {
-    color: red;
-    font-size: 16px;
-    margin-top: 20px;
-}
-
-.edit-recipe-form input, .edit-recipe-form textarea {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    font-size: 14px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
 }

@@ -1,0 +1,69 @@
+.discover-container {
+    padding: 20px;
+    background-color: #f9f9f9;
+    font-family: Arial, sans-serif;
+}
+
+.discover-title {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.category-group {
+    margin-bottom: 30px;
+}
+
+.category-title {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: #555;
+}
+
+.recipe-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.recipe-card {
+    background-color: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    height: 450px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.recipe-card img {
+    width: 250px;
+    max-height: 200px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    border: 4px solid #ff9900;
+}
+
+.recipe-title {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.recipe-instructions {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.no-recipes-message {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #888;
+}

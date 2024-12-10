@@ -195,24 +195,24 @@ const RecipeDetail = () => {
            
 
             {!isEditingRecipe ? (
-                <div className="recipe-card">
+                <div className="recipe-detail-card">
                     <h1>{recipe.title}</h1>
                     <img
                         src={recipe.imageUrl || '/image.png'}
                         alt={recipe.title}
-                        className="recipe-image"
+                        className="recipe-detail-image"
                     />
                     <p><strong>Ingredients:</strong> {recipe.ingredients}</p>
                     <p><strong>Instructions:</strong> {recipe.instructions}</p>
                     <p><strong>Tags:</strong> {Array.isArray(recipe.dietaryTags) ? recipe.dietaryTags.join(', ') : 'None'}</p>
                     <p><strong>Favorites:</strong> {recipe.favoritesCount}</p>
-                    <button className="favorite-btn" onClick={handleToggleFavorite}>
+                    <button className="recipe-detail-btn" onClick={handleToggleFavorite}>
                         {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
                     </button>
                     {user.id === recipe.ownerId && (
                         <div className="owner-actions">
-                            <button className="edit-btn" onClick={() => setIsEditingRecipe(true)}>Edit Recipe</button>
-                            <button className="delete-btn" onClick={handleDeleteRecipe}>Delete Recipe</button>
+                            <button className="recipe-detail-btn" onClick={() => setIsEditingRecipe(true)}>Edit Recipe</button>
+                            <button className="recipe-detail-btn" onClick={handleDeleteRecipe}>Delete Recipe</button>
                         </div>
                     )}
                 </div>
@@ -304,7 +304,7 @@ const RecipeDetail = () => {
                 placeholder="Add a comment"
                 className="new-comment-textarea"
             />
-            <button className="add-comment-btn" onClick={handleAddComment}>Add Comment</button>
+            <button className="recipe-detail-btn" onClick={handleAddComment}>Add Comment</button>
         </div>
     );
 };
