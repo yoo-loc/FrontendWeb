@@ -17,6 +17,8 @@ import Logout from './components/Logout';
 import RecipeDetail from './components/RecipeDetail';
 
 //testing
+import axios from 'axios';
+import UserFeed from './components/UserFeed';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const App = () => {
