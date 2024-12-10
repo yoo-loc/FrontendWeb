@@ -198,7 +198,7 @@ const RecipeDetail = () => {
                 <div className="recipe-card">
                     <h1>{recipe.title}</h1>
                     <img
-                        src={recipe.imageUrl || 'https://via.placeholder.com/600x400'}
+                        src={recipe.imageUrl || '/image.png'}
                         alt={recipe.title}
                         className="recipe-image"
                     />
